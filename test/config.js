@@ -3,8 +3,8 @@ var marshall = require('../index.js');
 // Configuration schema
 var config = marshall({
   env: {
-    doc: 'The applicaton environment.',
-    format: ['production', 'development', 'test'],
+    doc: 'The application environment.',
+    format: ['production', 'development'],
     default: 'development',
     env: 'NODE_ENV',
     arg: 'node-env',
