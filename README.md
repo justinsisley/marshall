@@ -1,4 +1,4 @@
-# Marshall
+# marshall
 
 [![licence mit](https://img.shields.io/badge/licence-MIT-blue.svg)](https://github.com/justinsisley/marshall/blob/master/LICENSE.md)
 
@@ -6,15 +6,21 @@
 
 Marshall is very heavily inspired by [convict](https://www.npmjs.com/package/convict). If you only need configuration management for a Node.js app, convict is the way to go.
 
+## Features
+
 - Small footprint
 - Use in any JavaScript environment
-- Override default values with environment variables and command line arguments
+- Default values
+- Environment variable overrides
+- Command-line argument overrides
 - Built-in documentation
 - Strict validation by default
 
 ## Install
 
-`npm install marshall`
+```bash
+npm install marshall
+```
 
 ## Example
 

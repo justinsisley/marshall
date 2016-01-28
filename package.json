@@ -1,6 +1,6 @@
 {
   "name": "marshall",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Shared JavaScript configuration for Node.js and web apps",
   "main": "index.js",
   "scripts": {
