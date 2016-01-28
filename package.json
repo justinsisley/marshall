@@ -1,10 +1,10 @@
 {
   "name": "marshall",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Shared JavaScript configuration for Node.js and web apps",
   "main": "index.js",
   "scripts": {
-    "test": ""
+    "test": "node ./test/app.js"
   },
   "repository": {
     "type": "git",
@@ -19,5 +19,8 @@
   "bugs": {
     "url": "https://github.com/justinsisley/marshall/issues"
   },
-  "homepage": "https://github.com/justinsisley/marshall#readme"
+  "homepage": "https://github.com/justinsisley/marshall#readme",
+  "dependencies": {
+    "validator": "^4.5.2"
+  }
 }
