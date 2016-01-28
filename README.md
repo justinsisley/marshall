@@ -8,7 +8,7 @@ Marshall is very heavily inspired by [convict](https://www.npmjs.com/package/con
 
 ## Features
 
-- Small footprint (~16kb minified, ~6kb gzipped)
+- Small footprint (~17kb minified, ~5.5kb gzipped)
 - Use in any JavaScript environment
 - Default values
 - Environment variable overrides
