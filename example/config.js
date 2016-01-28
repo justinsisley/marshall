@@ -1,4 +1,4 @@
-var marshall = require('../index.js');
+var marshall = require('../dist/marshall');
 
 // Configuration schema
 var config = marshall({
@@ -17,16 +17,16 @@ var config = marshall({
     arg: 'port',
   },
   cacheDuration: {
-    doc: 'Length of time to cache static assets in production mode',
+    doc: 'Length of time to cache static assets',
     format: 'nat',
-    default: 1000 * 60 * 60 * 24 * 60, // 60 days
+    default: 5184000000, // 60 days
     env: 'CACHE_DURATION',
     arg: 'cache-duration',
   },
   api: {
     doc: 'The API the application communicates with',
     format: 'url',
-    default: 'http://localhost:8685',
+    default: 'https://api.company.com',
     env: 'API',
     arg: 'api',
   },

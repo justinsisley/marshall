@@ -8,7 +8,7 @@ Marshall is very heavily inspired by [convict](https://www.npmjs.com/package/con
 
 ## Features
 
-- Small footprint
+- Small footprint (~16kb minified, ~6kb gzipped)
 - Use in any JavaScript environment
 - Default values
 - Environment variable overrides
@@ -46,16 +46,16 @@ var config = marshall({
     arg: 'port',
   },
   cacheDuration: {
-    doc: 'Length of time to cache static assets in production mode',
+    doc: 'Length of time to cache static assets',
     format: 'nat',
-    default: 1000 * 60 * 60 * 24 * 60, // 60 days
+    default: 5184000000, // 60 days
     env: 'CACHE_DURATION',
     arg: 'cache-duration',
   },
   api: {
     doc: 'The API the application communicates with',
     format: 'url',
-    default: 'http://localhost:8685',
+    default: 'https://api.company.com',
     env: 'API',
     arg: 'api',
   },
@@ -69,8 +69,14 @@ module.exports = config;
 ```javascript
 var config = require('./config.js');
 
+// Log a single configuration
 console.log('Environment: ' + config.get('env'));
+// Log all configurations
+console.log('All config: ' + config.get());
+// Log the current configuration details in a user-friendly format
+console.log(config.doc());
 
+// Make use of a configuration
 $.get(config.get('api') + '/users')
 .done(function(allUsers) {
   console.log(allUsers);
