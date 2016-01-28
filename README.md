@@ -20,8 +20,7 @@ Marshall is very heavily inspired by [convict](https://www.npmjs.com/package/con
 
 An example `config.js`:
 
-```
-
+```javascript
 var marshall = require('marshall');
 
 // Configuration schema
@@ -57,13 +56,11 @@ var config = marshall({
 });
 
 module.exports = config;
-
 ```
 
 ### Usage
 
-```
-
+```javascript
 var config = require('./config.js');
 
 console.log('Environment: ' + config.get('env'));
@@ -72,7 +69,6 @@ $.get(config.get('api') + '/users')
 .done(function(allUsers) {
   console.log(allUsers);
 });
-
 ```
 
 ## Validation
