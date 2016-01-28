@@ -1,0 +1,23 @@
+{
+  "name": "marshall",
+  "version": "0.1.0",
+  "description": "Shared JavaScript configuration for Node.js and web apps",
+  "main": "index.js",
+  "scripts": {
+    "test": ""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/justinsisley/marshall.git"
+  },
+  "keywords": [
+    "config",
+    "configuration"
+  ],
+  "author": "Justin Sisley <justin@vera.com> (http://justinsisley.com)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/justinsisley/marshall/issues"
+  },
+  "homepage": "https://github.com/justinsisley/marshall#readme"
+}
