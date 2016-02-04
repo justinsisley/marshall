@@ -1,4 +1,4 @@
-var marshall = require('../dist/marshall');
+var marshall = require('../index');
 
 // Configuration schema
 var config = marshall({
