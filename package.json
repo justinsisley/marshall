@@ -1,8 +1,8 @@
 {
   "name": "marshall",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Shared JavaScript configuration for Node.js and web apps",
-  "main": "./dist/marshall.js",
+  "main": "index.js",
   "scripts": {
     "example": "node ./example/app.js --node-env=production",
     "build": "browserify -s marshall --bare index.js | uglifyjs --mangle > ./dist/marshall.js"
