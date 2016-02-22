@@ -14,7 +14,7 @@ var marshall = function marshall(config) {
 
       // Create an envConfig object that returns key/value pairs with the
       // environment variable name as the key
-      envConfig[config[prop].env] = parsedConfig[prop];
+      envConfig[config[prop].env] = JSON.stringify(parsedConfig[prop]);
 
       // Generate user-friendly docs
       docs.push(config[prop].doc + ' (' + prop + '): ' + parsedConfig[prop]);
