@@ -75,6 +75,8 @@ console.log('Environment: ' + config.get('env'));
 console.log('All config: ' + config.get());
 // Log the current configuration details in a user-friendly format
 console.log(config.doc());
+// Log the current configuration details using the environment variable name as the key
+console.log(config.env());
 
 // Make use of a configuration
 $.get(config.get('api') + '/users')
