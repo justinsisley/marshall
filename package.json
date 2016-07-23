@@ -1,6 +1,6 @@
 {
   "name": "marshall",
-  "version": "0.4.1",
+  "version": "1.0.0",
   "description": "Shared JavaScript configuration for Node.js and web apps",
   "main": "index.js",
   "scripts": {
@@ -22,9 +22,10 @@
   },
   "homepage": "https://github.com/justinsisley/marshall#readme",
   "dependencies": {
-    "validator": "^4.7.1"
+    "validator": "^5.5.0"
   },
   "devDependencies": {
-    "uglify-js": "^2.6.1"
+    "browserify": "^13.0.1",
+    "uglify-js": "^2.7.0"
   }
 }
