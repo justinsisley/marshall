@@ -1,7 +1,7 @@
-var marshall = require('../index');
+const marshall = require('../lib');
 
 // Configuration schema
-var config = marshall({
+const config = marshall({
   env: {
     doc: 'The application environment',
     format: ['production', 'development'],

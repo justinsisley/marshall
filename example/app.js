@@ -1,4 +1,4 @@
-var config = require('./config');
+const config = require('./config');
 
 console.log(config.get('env') + '\n');
 console.log(config.get('nested').example + '\n');

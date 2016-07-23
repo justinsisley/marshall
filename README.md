@@ -8,7 +8,6 @@ Marshall is very heavily inspired by [convict](https://www.npmjs.com/package/con
 
 ## Features
 
-- Small footprint (~17kb minified, ~5.5kb gzipped)
 - Use in any JavaScript environment
 - Default values
 - Environment variable overrides
@@ -27,10 +26,10 @@ npm install marshall
 An example `config.js`:
 
 ```javascript
-var marshall = require('marshall');
+const marshall = require('marshall');
 
 // Configuration schema
-var config = marshall({
+const config = marshall({
   env: {
     doc: 'The application environment',
     format: ['production', 'development'],
@@ -67,7 +66,7 @@ module.exports = config;
 ### Usage
 
 ```javascript
-var config = require('./config.js');
+const config = require('./config.js');
 
 // Log a single configuration
 console.log('Environment: ' + config.get('env'));
