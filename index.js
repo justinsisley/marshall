@@ -1,23 +1,51 @@
+var Table = require('cli-table');
 var parser = require('./lib/parser');
 
 var marshall = function marshall(config) {
   var parsedConfig = {};
   var parsedProp;
-  var docs = [];
   var envConfig = {};
+
+  var table = new Table({
+    head: ['Config', 'Value', 'Description'],
+  });
 
   // Iterate configuration object
   for (var prop in config) {
     if (config.hasOwnProperty(prop)) {
-      // Parse each property to validate and retrieve the final value
-      parsedConfig[prop] = parser.parse(prop, config[prop], marshall.locale);
+      var propName = prop;
 
-      // Create an envConfig object that returns key/value pairs with the
-      // environment variable name as the key
-      envConfig[config[prop].env] = JSON.stringify(parsedConfig[prop]);
+      if (config[prop].format) {
+        // Parse each property to validate and retrieve the final value
+        parsedConfig[prop] = parser.parse(prop, config[prop], marshall.locale);
 
-      // Generate user-friendly docs
-      docs.push(config[prop].doc + ' (' + prop + '): ' + parsedConfig[prop]);
+        envConfig[config[prop].env] = JSON.stringify(parsedConfig[prop]);
+
+        table.push([propName, parsedConfig[prop], config[prop].doc]);
+      } else {
+        parsedConfig[prop] = {};
+
+        for (var nestedProp in config[prop]) {
+          propName = prop + '.' + nestedProp;
+
+          if (config[prop].hasOwnProperty(nestedProp)) {
+            // Parse each property to validate and retrieve the final value
+            parsedConfig[prop][nestedProp] = parser.parse(
+              nestedProp,
+              config[prop][nestedProp],
+              marshall.locale
+            );
+
+            envConfig[config[prop][nestedProp].env] = JSON.stringify(parsedConfig[prop][nestedProp]);
+
+            table.push([
+              prop + '.' + nestedProp,
+              parsedConfig[prop][nestedProp],
+              config[prop][nestedProp].doc
+            ]);
+          }
+        }
+      }
     }
   }
 
@@ -27,7 +55,7 @@ var marshall = function marshall(config) {
       return parsedConfig[key];
     },
     doc: function doc() {
-      return '\n* ' + docs.join('\n* ') + '\n';
+      return table.toString();
     },
     env: function env() {
       return envConfig;
@@ -39,3 +67,19 @@ var marshall = function marshall(config) {
 marshall.locale = 'en-US';
 
 module.exports = marshall;
+
+
+
+
+// Handle nested configs
+// if (!value) {
+//   nestedValues = {};
+//
+//   for (var prop in config) {
+//     if (config.hasOwnProperty(prop)) {
+//       nestedValues[prop] = parser(name, config[prop], locale);
+//     }
+//   }
+//
+//   return nestedValues;
+// }

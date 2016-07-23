@@ -30,6 +30,22 @@ var config = marshall({
     env: 'API',
     arg: 'api',
   },
+  nested: {
+    example: {
+      doc: 'Nested config',
+      format: String,
+      default: 'I am a nested string',
+      env: 'NESTED_CONFIG',
+      arg: 'nested-config',
+    },
+    anotherExample: {
+      doc: 'Another nested config',
+      format: String,
+      default: 'Yet another nested string',
+      env: 'NESTED_CONFIG_2',
+      arg: 'nested-config-2',
+    },
+  }
 });
 
 module.exports = config;
