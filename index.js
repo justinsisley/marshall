@@ -24,7 +24,7 @@ module.exports = {
   isNode: isNode
 };
 },{}],3:[function(require,module,exports){
-var Table = require('cli-table');
+var Table = require('easy-table');
 var parser = require('./parser');
 
 var marshall = function marshall(config) {
@@ -78,11 +78,14 @@ var marshall = function marshall(config) {
       return parsedConfig[key];
     },
     doc: function doc() {
-      var table = new Table({
-        head: ['Config', 'Value', 'Description'],
-      });
+      var table = new Table();
 
-      tableRows.map(row => table.push(row))
+      tableRows.map(row => {
+        table.cell('Config', row[0]);
+        table.cell('Value', row[1]);
+        table.cell('Description', row[2]);
+        table.newRow();
+      })
 
       return table.toString();
     },
@@ -97,7 +100,7 @@ marshall.locale = 'en-US';
 
 module.exports = marshall;
 
-},{"./parser":4,"cli-table":6}],4:[function(require,module,exports){
+},{"./parser":4,"easy-table":6}],4:[function(require,module,exports){
 var environment = require('./environment');
 var validator = require('./validator');
 var args = require('./args');
@@ -232,916 +235,447 @@ module.exports = {
   }
 };
 
-},{"validator":18}],6:[function(require,module,exports){
+},{"validator":7}],6:[function(require,module,exports){
+module.exports = Table
+
+function Table() {
+  this.rows = []
+  this.row = {__printers : {}}
+}
 
 /**
- * Module dependencies.
- */
-
-var colors = require('colors/safe')
-  , utils = require('./utils')
-  , repeat = utils.repeat
-  , truncate = utils.truncate
-  , pad = utils.pad;
-
-/**
- * Table constructor
+ * Push the current row to the table and start a new one
  *
- * @param {Object} options
- * @api public
+ * @returns {Table} `this`
  */
 
-function Table (options){
-  this.options = utils.options({
-      chars: {
-          'top': '─'
-        , 'top-mid': '┬'
-        , 'top-left': '┌'
-        , 'top-right': '┐'
-        , 'bottom': '─'
-        , 'bottom-mid': '┴'
-        , 'bottom-left': '└'
-        , 'bottom-right': '┘'
-        , 'left': '│'
-        , 'left-mid': '├'
-        , 'mid': '─'
-        , 'mid-mid': '┼'
-        , 'right': '│'
-        , 'right-mid': '┤'
-        , 'middle': '│'
-      }
-    , truncate: '…'
-    , colWidths: []
-    , colAligns: []
-    , style: {
-          'padding-left': 1
-        , 'padding-right': 1
-        , head: ['red']
-        , border: ['grey']
-        , compact : false
-      }
-    , head: []
-  }, options);
-};
+Table.prototype.newRow = function() {
+  this.rows.push(this.row)
+  this.row = {__printers : {}}
+  return this
+}
 
 /**
- * Inherit from Array.
- */
-
-Table.prototype.__proto__ = Array.prototype;
-
-/**
- * Width getter
+ * Write cell in the current row
  *
- * @return {Number} width
- * @api public
+ * @param {String} col          - Column name
+ * @param {Any} val             - Cell value
+ * @param {Function} [printer]  - Printer function to format the value
+ * @returns {Table} `this`
  */
 
-Table.prototype.__defineGetter__('width', function (){
-  var str = this.toString().split("\n");
-  if (str.length) return str[0].length;
-  return 0;
-});
+Table.prototype.cell = function(col, val, printer) {
+  this.row[col] = val
+  this.row.__printers[col] = printer || string
+  return this
+}
 
 /**
- * Render to a string.
- *
- * @return {String} table representation
- * @api public
+ * String to separate columns
  */
 
-Table.prototype.render
-Table.prototype.toString = function (){
-  var ret = ''
-    , options = this.options
-    , style = options.style
-    , head = options.head
-    , chars = options.chars
-    , truncater = options.truncate
-      , colWidths = options.colWidths || new Array(this.head.length)
-      , totalWidth = 0;
+Table.prototype.separator = '  '
 
-    if (!head.length && !this.length) return '';
+function string(val) {
+  return val === undefined ? '' : ''+val
+}
 
-    if (!colWidths.length){
-      var all_rows = this.slice(0);
-      if (head.length) { all_rows = all_rows.concat([head]) };
+function length(str) {
+  return str.replace(/\u001b\[\d+m/g, '').length
+}
 
-      all_rows.forEach(function(cells){
-        // horizontal (arrays)
-        if (typeof cells === 'object' && cells.length) {
-          extractColumnWidths(cells);
+/**
+ * Default printer
+ */
 
-        // vertical (objects)
-        } else {
-          var header_cell = Object.keys(cells)[0]
-            , value_cell = cells[header_cell];
+Table.string = string
 
-          colWidths[0] = Math.max(colWidths[0] || 0, get_width(header_cell) || 0);
+/**
+ * Create a printer which right aligns the content by padding with `ch` on the left
+ *
+ * @param {String} ch
+ * @returns {Function}
+ */
 
-          // cross (objects w/ array values)
-          if (typeof value_cell === 'object' && value_cell.length) {
-            extractColumnWidths(value_cell, 1);
-          } else {
-            colWidths[1] = Math.max(colWidths[1] || 0, get_width(value_cell) || 0);
-          }
-        }
-    });
-  };
+Table.leftPadder = leftPadder
 
-  totalWidth = (colWidths.length == 1 ? colWidths[0] : colWidths.reduce(
-    function (a, b){
-      return a + b
-    })) + colWidths.length + 1;
+function leftPadder(ch) {
+  return function(val, width) {
+    var str = string(val)
+    var len = length(str)
+    var pad = width > len ? Array(width - len + 1).join(ch) : ''
+    return pad + str
+  }
+}
 
-  function extractColumnWidths(arr, offset) {
-    var offset = offset || 0;
-    arr.forEach(function(cell, i){
-      colWidths[i + offset] = Math.max(colWidths[i + offset] || 0, get_width(cell) || 0);
-    });
-  };
+/**
+ * Printer which right aligns the content
+ */
 
-  function get_width(obj) {
-    return typeof obj == 'object' && obj.width != undefined
-         ? obj.width
-         : ((typeof obj == 'object' ? utils.strlen(obj.text) : utils.strlen(obj)) + (style['padding-left'] || 0) + (style['padding-right'] || 0))
+var padLeft = Table.padLeft = leftPadder(' ')
+
+/**
+ * Create a printer which pads with `ch` on the right
+ *
+ * @param {String} ch
+ * @returns {Function}
+ */
+
+Table.rightPadder = rightPadder
+
+function rightPadder(ch) {
+  return function padRight(val, width) {
+    var str = string(val)
+    var len = length(str)
+    var pad = width > len ? Array(width - len + 1).join(ch) : ''
+    return str + pad
+  }
+}
+
+var padRight = rightPadder(' ')
+
+/**
+ * Create a printer for numbers
+ *
+ * Will do right alignment and optionally fix the number of digits after decimal point
+ *
+ * @param {Number} [digits] - Number of digits for fixpoint notation
+ * @returns {Function}
+ */
+
+Table.number = function(digits) {
+  return function(val, width) {
+    if (val == null) return ''
+    if (typeof val != 'number')
+      throw new Error(''+val + ' is not a number')
+    var str = digits == null ? val+'' : val.toFixed(digits)
+    return padLeft(str, width)
+  }
+}
+
+function each(row, fn) {
+  for(var key in row) {
+    if (key == '__printers') continue
+    fn(key, row[key])
+  }
+}
+
+/**
+ * Get list of columns in printing order
+ *
+ * @returns {string[]}
+ */
+
+Table.prototype.columns = function() {
+  var cols = {}
+  for(var i = 0; i < 2; i++) { // do 2 times
+    this.rows.forEach(function(row) {
+      var idx = 0
+      each(row, function(key) {
+        idx = Math.max(idx, cols[key] || 0)
+        cols[key] = idx
+        idx++
+      })
+    })
+  }
+  return Object.keys(cols).sort(function(a, b) {
+    return cols[a] - cols[b]
+  })
+}
+
+/**
+ * Format just rows, i.e. print the table without headers and totals
+ *
+ * @returns {String} String representaion of the table
+ */
+
+Table.prototype.print = function() {
+  var cols = this.columns()
+  var separator = this.separator
+  var widths = {}
+  var out = ''
+
+  // Calc widths
+  this.rows.forEach(function(row) {
+    each(row, function(key, val) {
+      var str = row.__printers[key].call(row, val)
+      widths[key] = Math.max(length(str), widths[key] || 0)
+    })
+  })
+
+  // Now print
+  this.rows.forEach(function(row) {
+    var line = ''
+    cols.forEach(function(key) {
+      var width = widths[key]
+      var str = row.hasOwnProperty(key)
+        ? ''+row.__printers[key].call(row, row[key], width)
+        : ''
+      line += padRight(str, width) + separator
+    })
+    line = line.slice(0, -separator.length)
+    out += line + '\n'
+  })
+
+  return out
+}
+
+/**
+ * Format the table
+ *
+ * @returns {String}
+ */
+
+Table.prototype.toString = function() {
+  var cols = this.columns()
+  var out = new Table()
+
+  // copy options
+  out.separator = this.separator
+
+  // Write header
+  cols.forEach(function(col) {
+    out.cell(col, col)
+  })
+  out.newRow()
+  out.pushDelimeter(cols)
+
+  // Write body
+  out.rows = out.rows.concat(this.rows)
+
+  // Totals
+  if (this.totals && this.rows.length) {
+    out.pushDelimeter(cols)
+    this.forEachTotal(out.cell.bind(out))
+    out.newRow()
   }
 
-  // draws a line
-  function line (line, left, right, intersection){
-    var width = 0
-      , line =
-          left
-        + repeat(line, totalWidth - 2)
-        + right;
+  return out.print()
+}
 
-    colWidths.forEach(function (w, i){
-      if (i == colWidths.length - 1) return;
-      width += w + 1;
-      line = line.substr(0, width) + intersection + line.substr(width + 1);
-    });
+/**
+ * Push delimeter row to the table (with each cell filled with dashs during printing)
+ *
+ * @param {String[]} [cols]
+ * @returns {Table} `this`
+ */
 
-    return applyStyles(options.style.border, line);
-  };
+Table.prototype.pushDelimeter = function(cols) {
+  cols = cols || this.columns()
+  cols.forEach(function(col) {
+    this.cell(col, undefined, leftPadder('-'))
+  }, this)
+  return this.newRow()
+}
 
-  // draws the top line
-  function lineTop (){
-    var l = line(chars.top
-               , chars['top-left'] || chars.top
-               , chars['top-right'] ||  chars.top
-               , chars['top-mid']);
-    if (l)
-      ret += l + "\n";
-  };
+/**
+ * Compute all totals and yield the results to `cb`
+ *
+ * @param {Function} cb - Callback function with signature `(column, value, printer)`
+ */
 
-  function generateRow (items, style) {
-    var cells = []
-      , max_height = 0;
+Table.prototype.forEachTotal = function(cb) {
+  for(var key in this.totals) {
+    var aggr = this.totals[key]
+    var acc = aggr.init
+    var len = this.rows.length
+    this.rows.forEach(function(row, idx) {
+      acc = aggr.reduce.call(row, acc, row[key], idx, len)
+    })
+    cb(key, acc, aggr.printer)
+  }
+}
 
-    // prepare vertical and cross table data
-    if (!Array.isArray(items) && typeof items === "object") {
-      var key = Object.keys(items)[0]
-        , value = items[key]
-        , first_cell_head = true;
+/**
+ * Format the table so that each row represents column and each column represents row
+ *
+ * @param {Object} [opts]
+ * @param {String} [ops.separator] - Column separation string
+ * @param {Function} [opts.namePrinter] - Printer to format column names
+ * @returns {String}
+ */
 
-      if (Array.isArray(value)) {
-        items = value;
-        items.unshift(key);
-      } else {
-        items = [key, value];
+Table.prototype.printTransposed = function(opts) {
+  opts = opts || {}
+  var out = new Table
+  out.separator = opts.separator || this.separator
+  this.columns().forEach(function(col) {
+    out.cell(0, col, opts.namePrinter)
+    this.rows.forEach(function(row, idx) {
+      out.cell(idx+1, row[col], row.__printers[col])
+    })
+    out.newRow()
+  }, this)
+  return out.print()
+}
+
+/**
+ * Sort the table
+ *
+ * @param {Function|string[]} [cmp] - Either compare function or a list of columns to sort on
+ * @returns {Table} `this`
+ */
+
+Table.prototype.sort = function(cmp) {
+  if (typeof cmp == 'function') {
+    this.rows.sort(cmp)
+    return this
+  }
+
+  var keys = Array.isArray(cmp) ? cmp : this.columns()
+
+  var comparators = keys.map(function(key) {
+    var order = 'asc'
+    var m = /(.*)\|\s*(asc|des)\s*$/.exec(key)
+    if (m) {
+      key = m[1]
+      order = m[2]
+    }
+    return function (a, b) {
+      return order == 'asc'
+        ? compare(a[key], b[key])
+        : compare(b[key], a[key])
+    }
+  })
+
+  return this.sort(function(a, b) {
+    for (var i = 0; i < comparators.length; i++) {
+      var order = comparators[i](a, b)
+      if (order != 0) return order
+    }
+    return 0
+  })
+}
+
+function compare(a, b) {
+  if (a === b) return 0
+  if (a === undefined) return 1
+  if (b === undefined) return -1
+  if (a === null) return 1
+  if (b === null) return -1
+  if (a > b) return 1
+  if (a < b) return -1
+  return compare(String(a), String(b))
+}
+
+/**
+ * Add a total for the column
+ *
+ * @param {String} col - column name
+ * @param {Object} [opts]
+ * @param {Function} [opts.reduce = sum] - reduce(acc, val, idx, length) function to compute the total value
+ * @param {Function} [opts.printer = padLeft] - Printer to format the total cell
+ * @param {Any} [opts.init = 0] - Initial value for reduction
+ * @returns {Table} `this`
+ */
+
+Table.prototype.total = function(col, opts) {
+  opts = opts || {}
+  this.totals = this.totals || {}
+  this.totals[col] = {
+    reduce: opts.reduce || Table.aggr.sum,
+    printer: opts.printer || padLeft,
+    init: opts.init == null ? 0 : opts.init
+  }
+  return this
+}
+
+/**
+ * Predefined helpers for totals
+ */
+
+Table.aggr = {}
+
+/**
+ * Create a printer which formats the value with `printer`,
+ * adds the `prefix` to it and right aligns the whole thing
+ *
+ * @param {String} prefix
+ * @param {Function} printer
+ * @returns {printer}
+ */
+
+Table.aggr.printer = function(prefix, printer) {
+  printer = printer || string
+  return function(val, width) {
+    return padLeft(prefix + printer(val), width)
+  }
+}
+
+/**
+ * Sum reduction
+ */
+
+Table.aggr.sum = function(acc, val) {
+  return acc + val
+}
+
+/**
+ * Average reduction
+ */
+
+Table.aggr.avg = function(acc, val, idx, len) {
+  acc = acc + val
+  return idx + 1 == len ? acc/len : acc
+}
+
+/**
+ * Print the array or object
+ *
+ * @param {Array|Object} obj - Object to print
+ * @param {Function|Object} [format] - Format options
+ * @param {Function} [cb] - Table post processing and formating
+ * @returns {String}
+ */
+
+Table.print = function(obj, format, cb) {
+  var opts = format || {}
+
+  format = typeof format == 'function'
+    ? format
+    : function(obj, cell) {
+      for(var key in obj) {
+        if (!obj.hasOwnProperty(key)) continue
+        var params = opts[key] || {}
+        cell(params.name || key, obj[key], params.printer)
       }
     }
 
-    // transform array of item strings into structure of cells
-    items.forEach(function (item, i) {
-      var contents = item.toString().split("\n").reduce(function (memo, l) {
-        memo.push(string(l, i));
-        return memo;
-      }, [])
+  var t = new Table
+  var cell = t.cell.bind(t)
 
-      var height = contents.length;
-      if (height > max_height) { max_height = height };
-
-      cells.push({ contents: contents , height: height });
-    });
-
-    // transform vertical cells into horizontal lines
-    var lines = new Array(max_height);
-    cells.forEach(function (cell, i) {
-      cell.contents.forEach(function (line, j) {
-        if (!lines[j]) { lines[j] = [] };
-        if (style || (first_cell_head && i === 0 && options.style.head)) {
-          line = applyStyles(options.style.head, line)
-        }
-
-        lines[j].push(line);
-      });
-
-      // populate empty lines in cell
-      for (var j = cell.height, l = max_height; j < l; j++) {
-        if (!lines[j]) { lines[j] = [] };
-        lines[j].push(string('', i));
-      }
-    });
-    var ret = "";
-    lines.forEach(function (line, index) {
-      if (ret.length > 0) {
-        ret += "\n" + applyStyles(options.style.border, chars.left);
-      }
-
-      ret += line.join(applyStyles(options.style.border, chars.middle)) + applyStyles(options.style.border, chars.right);
-    });
-
-    return applyStyles(options.style.border, chars.left) + ret;
-  };
-
-  function applyStyles(styles, subject) {
-    if (!subject)
-      return '';
-    styles.forEach(function(style) {
-      subject = colors[style](subject);
-    });
-    return subject;
-  };
-
-  // renders a string, by padding it or truncating it
-  function string (str, index){
-    var str = String(typeof str == 'object' && str.text ? str.text : str)
-      , length = utils.strlen(str)
-      , width = colWidths[index]
-          - (style['padding-left'] || 0)
-          - (style['padding-right'] || 0)
-      , align = options.colAligns[index] || 'left';
-
-    return repeat(' ', style['padding-left'] || 0)
-         + (length == width ? str :
-             (length < width
-              ? pad(str, ( width + (str.length - length) ), ' ', align == 'left' ? 'right' :
-                  (align == 'middle' ? 'both' : 'left'))
-              : (truncater ? truncate(str, width, truncater) : str))
-           )
-         + repeat(' ', style['padding-right'] || 0);
-  };
-
-  if (head.length){
-    lineTop();
-
-    ret += generateRow(head, style.head) + "\n"
-  }
-
-  if (this.length)
-    this.forEach(function (cells, i){
-      if (!head.length && i == 0)
-        lineTop();
-      else {
-        if (!style.compact || i<(!!head.length) ?1:0 || cells.length == 0){
-          var l = line(chars.mid
-                     , chars['left-mid']
-                     , chars['right-mid']
-                     , chars['mid-mid']);
-          if (l)
-            ret += l + "\n"
-        }
-      }
-
-      if (cells.hasOwnProperty("length") && !cells.length) {
-        return
-      } else {
-        ret += generateRow(cells) + "\n";
-      };
-    });
-
-  var l = line(chars.bottom
-             , chars['bottom-left'] || chars.bottom
-             , chars['bottom-right'] || chars.bottom
-             , chars['bottom-mid']);
-  if (l)
-    ret += l;
-  else
-    // trim the last '\n' if we didn't add the bottom decoration
-    ret = ret.slice(0, -1);
-
-  return ret;
-};
-
-/**
- * Module exports.
- */
-
-module.exports = Table;
-
-module.exports.version = '0.0.1';
-
-},{"./utils":7,"colors/safe":17}],7:[function(require,module,exports){
-
-/**
- * Repeats a string.
- *
- * @param {String} char(s)
- * @param {Number} number of times
- * @return {String} repeated string
- */
-
-exports.repeat = function (str, times){
-  return Array(times + 1).join(str);
-};
-
-/**
- * Pads a string
- *
- * @api public
- */
-
-exports.pad = function (str, len, pad, dir) {
-  if (len + 1 >= str.length)
-    switch (dir){
-      case 'left':
-        str = Array(len + 1 - str.length).join(pad) + str;
-        break;
-
-      case 'both':
-        var right = Math.ceil((padlen = len - str.length) / 2);
-        var left = padlen - right;
-        str = Array(left + 1).join(pad) + str + Array(right + 1).join(pad);
-        break;
-
-      default:
-        str = str + Array(len + 1 - str.length).join(pad);
-    };
-
-  return str;
-};
-
-/**
- * Truncates a string
- *
- * @api public
- */
-
-exports.truncate = function (str, length, chr){
-  chr = chr || '…';
-  return str.length >= length ? str.substr(0, length - chr.length) + chr : str;
-};
-
-/**
- * Copies and merges options with defaults.
- *
- * @param {Object} defaults
- * @param {Object} supplied options
- * @return {Object} new (merged) object
- */
-
-function options(defaults, opts) {
-  for (var p in opts) {
-    if (opts[p] && opts[p].constructor && opts[p].constructor === Object) {
-      defaults[p] = defaults[p] || {};
-      options(defaults[p], opts[p]);
-    } else {
-      defaults[p] = opts[p];
-    }
-  }
-  return defaults;
-};
-exports.options = options;
-
-//
-// For consideration of terminal "color" programs like colors.js,
-// which can add ANSI escape color codes to strings,
-// we destyle the ANSI color escape codes for padding calculations.
-//
-// see: http://en.wikipedia.org/wiki/ANSI_escape_code
-//
-exports.strlen = function(str){
-  var code = /\u001b\[(?:\d*;){0,5}\d*m/g;
-  var stripped = ("" + str).replace(code,'');
-  var split = stripped.split("\n");
-  return split.reduce(function (memo, s) { return (s.length > memo) ? s.length : memo }, 0);
-}
-
-},{}],8:[function(require,module,exports){
-/*
-
-The MIT License (MIT)
-
-Original Library 
-  - Copyright (c) Marak Squires
-
-Additional functionality
- - Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
-*/
-
-var colors = {};
-module['exports'] = colors;
-
-colors.themes = {};
-
-var ansiStyles = colors.styles = require('./styles');
-var defineProps = Object.defineProperties;
-
-colors.supportsColor = require('./system/supports-colors');
-
-if (typeof colors.enabled === "undefined") {
-  colors.enabled = colors.supportsColor;
-}
-
-colors.stripColors = colors.strip = function(str){
-  return ("" + str).replace(/\x1B\[\d+m/g, '');
-};
-
-
-var stylize = colors.stylize = function stylize (str, style) {
-  return ansiStyles[style].open + str + ansiStyles[style].close;
-}
-
-var matchOperatorsRe = /[|\\{}()[\]^$+*?.]/g;
-var escapeStringRegexp = function (str) {
-  if (typeof str !== 'string') {
-    throw new TypeError('Expected a string');
-  }
-  return str.replace(matchOperatorsRe,  '\\$&');
-}
-
-function build(_styles) {
-  var builder = function builder() {
-    return applyStyle.apply(builder, arguments);
-  };
-  builder._styles = _styles;
-  // __proto__ is used because we must return a function, but there is
-  // no way to create a function with a different prototype.
-  builder.__proto__ = proto;
-  return builder;
-}
-
-var styles = (function () {
-  var ret = {};
-  ansiStyles.grey = ansiStyles.gray;
-  Object.keys(ansiStyles).forEach(function (key) {
-    ansiStyles[key].closeRe = new RegExp(escapeStringRegexp(ansiStyles[key].close), 'g');
-    ret[key] = {
-      get: function () {
-        return build(this._styles.concat(key));
-      }
-    };
-  });
-  return ret;
-})();
-
-var proto = defineProps(function colors() {}, styles);
-
-function applyStyle() {
-  var args = arguments;
-  var argsLen = args.length;
-  var str = argsLen !== 0 && String(arguments[0]);
-  if (argsLen > 1) {
-    for (var a = 1; a < argsLen; a++) {
-      str += ' ' + args[a];
-    }
-  }
-
-  if (!colors.enabled || !str) {
-    return str;
-  }
-
-  var nestedStyles = this._styles;
-
-  var i = nestedStyles.length;
-  while (i--) {
-    var code = ansiStyles[nestedStyles[i]];
-    str = code.open + str.replace(code.closeRe, code.open) + code.close;
-  }
-
-  return str;
-}
-
-function applyTheme (theme) {
-  for (var style in theme) {
-    (function(style){
-      colors[style] = function(str){
-        return colors[theme[style]](str);
-      };
-    })(style)
-  }
-}
-
-colors.setTheme = function (theme) {
-  if (typeof theme === 'string') {
-    try {
-      colors.themes[theme] = require(theme);
-      applyTheme(colors.themes[theme]);
-      return colors.themes[theme];
-    } catch (err) {
-      console.log(err);
-      return err;
-    }
+  if (Array.isArray(obj)) {
+    cb = cb || function(t) { return t.toString() }
+    obj.forEach(function(item) {
+      format(item, cell)
+      t.newRow()
+    })
   } else {
-    applyTheme(theme);
+    cb = cb || function(t) { return t.printTransposed({separator: ' : '}) }
+    format(obj, cell)
+    t.newRow()
   }
-};
 
-function init() {
-  var ret = {};
-  Object.keys(styles).forEach(function (name) {
-    ret[name] = {
-      get: function () {
-        return build([name]);
-      }
-    };
-  });
-  return ret;
+  return cb(t)
 }
 
-var sequencer = function sequencer (map, str) {
-  var exploded = str.split(""), i = 0;
-  exploded = exploded.map(map);
-  return exploded.join("");
-};
+/**
+ * Same as `Table.print()` but yields the result to `console.log()`
+ */
 
-// custom formatter methods
-colors.trap = require('./custom/trap');
-colors.zalgo = require('./custom/zalgo');
-
-// maps
-colors.maps = {};
-colors.maps.america = require('./maps/america');
-colors.maps.zebra = require('./maps/zebra');
-colors.maps.rainbow = require('./maps/rainbow');
-colors.maps.random = require('./maps/random')
-
-for (var map in colors.maps) {
-  (function(map){
-    colors[map] = function (str) {
-      return sequencer(colors.maps[map], str);
-    }
-  })(map)
+Table.log = function(obj, format, cb) {
+  console.log(Table.print(obj, format, cb))
 }
 
-defineProps(colors, init());
-},{"./custom/trap":9,"./custom/zalgo":10,"./maps/america":11,"./maps/rainbow":12,"./maps/random":13,"./maps/zebra":14,"./styles":15,"./system/supports-colors":16}],9:[function(require,module,exports){
-module['exports'] = function runTheTrap (text, options) {
-  var result = "";
-  text = text || "Run the trap, drop the bass";
-  text = text.split('');
-  var trap = {
-    a: ["\u0040", "\u0104", "\u023a", "\u0245", "\u0394", "\u039b", "\u0414"],
-    b: ["\u00df", "\u0181", "\u0243", "\u026e", "\u03b2", "\u0e3f"],
-    c: ["\u00a9", "\u023b", "\u03fe"],
-    d: ["\u00d0", "\u018a", "\u0500" , "\u0501" ,"\u0502", "\u0503"],
-    e: ["\u00cb", "\u0115", "\u018e", "\u0258", "\u03a3", "\u03be", "\u04bc", "\u0a6c"],
-    f: ["\u04fa"],
-    g: ["\u0262"],
-    h: ["\u0126", "\u0195", "\u04a2", "\u04ba", "\u04c7", "\u050a"],
-    i: ["\u0f0f"],
-    j: ["\u0134"],
-    k: ["\u0138", "\u04a0", "\u04c3", "\u051e"],
-    l: ["\u0139"],
-    m: ["\u028d", "\u04cd", "\u04ce", "\u0520", "\u0521", "\u0d69"],
-    n: ["\u00d1", "\u014b", "\u019d", "\u0376", "\u03a0", "\u048a"],
-    o: ["\u00d8", "\u00f5", "\u00f8", "\u01fe", "\u0298", "\u047a", "\u05dd", "\u06dd", "\u0e4f"],
-    p: ["\u01f7", "\u048e"],
-    q: ["\u09cd"],
-    r: ["\u00ae", "\u01a6", "\u0210", "\u024c", "\u0280", "\u042f"],
-    s: ["\u00a7", "\u03de", "\u03df", "\u03e8"],
-    t: ["\u0141", "\u0166", "\u0373"],
-    u: ["\u01b1", "\u054d"],
-    v: ["\u05d8"],
-    w: ["\u0428", "\u0460", "\u047c", "\u0d70"],
-    x: ["\u04b2", "\u04fe", "\u04fc", "\u04fd"],
-    y: ["\u00a5", "\u04b0", "\u04cb"],
-    z: ["\u01b5", "\u0240"]
-  }
-  text.forEach(function(c){
-    c = c.toLowerCase();
-    var chars = trap[c] || [" "];
-    var rand = Math.floor(Math.random() * chars.length);
-    if (typeof trap[c] !== "undefined") {
-      result += trap[c][rand];
-    } else {
-      result += c;
-    }
-  });
-  return result;
+/**
+ * Same as `.toString()` but yields the result to `console.log()`
+ */
 
+Table.prototype.log = function() {
+  console.log(this.toString())
 }
 
-},{}],10:[function(require,module,exports){
-// please no
-module['exports'] = function zalgo(text, options) {
-  text = text || "   he is here   ";
-  var soul = {
-    "up" : [
-      '̍', '̎', '̄', '̅',
-      '̿', '̑', '̆', '̐',
-      '͒', '͗', '͑', '̇',
-      '̈', '̊', '͂', '̓',
-      '̈', '͊', '͋', '͌',
-      '̃', '̂', '̌', '͐',
-      '̀', '́', '̋', '̏',
-      '̒', '̓', '̔', '̽',
-      '̉', 'ͣ', 'ͤ', 'ͥ',
-      'ͦ', 'ͧ', 'ͨ', 'ͩ',
-      'ͪ', 'ͫ', 'ͬ', 'ͭ',
-      'ͮ', 'ͯ', '̾', '͛',
-      '͆', '̚'
-    ],
-    "down" : [
-      '̖', '̗', '̘', '̙',
-      '̜', '̝', '̞', '̟',
-      '̠', '̤', '̥', '̦',
-      '̩', '̪', '̫', '̬',
-      '̭', '̮', '̯', '̰',
-      '̱', '̲', '̳', '̹',
-      '̺', '̻', '̼', 'ͅ',
-      '͇', '͈', '͉', '͍',
-      '͎', '͓', '͔', '͕',
-      '͖', '͙', '͚', '̣'
-    ],
-    "mid" : [
-      '̕', '̛', '̀', '́',
-      '͘', '̡', '̢', '̧',
-      '̨', '̴', '̵', '̶',
-      '͜', '͝', '͞',
-      '͟', '͠', '͢', '̸',
-      '̷', '͡', ' ҉'
-    ]
-  },
-  all = [].concat(soul.up, soul.down, soul.mid),
-  zalgo = {};
-
-  function randomNumber(range) {
-    var r = Math.floor(Math.random() * range);
-    return r;
-  }
-
-  function is_char(character) {
-    var bool = false;
-    all.filter(function (i) {
-      bool = (i === character);
-    });
-    return bool;
-  }
-  
-
-  function heComes(text, options) {
-    var result = '', counts, l;
-    options = options || {};
-    options["up"] = options["up"] || true;
-    options["mid"] = options["mid"] || true;
-    options["down"] = options["down"] || true;
-    options["size"] = options["size"] || "maxi";
-    text = text.split('');
-    for (l in text) {
-      if (is_char(l)) {
-        continue;
-      }
-      result = result + text[l];
-      counts = {"up" : 0, "down" : 0, "mid" : 0};
-      switch (options.size) {
-      case 'mini':
-        counts.up = randomNumber(8);
-        counts.min = randomNumber(2);
-        counts.down = randomNumber(8);
-        break;
-      case 'maxi':
-        counts.up = randomNumber(16) + 3;
-        counts.min = randomNumber(4) + 1;
-        counts.down = randomNumber(64) + 3;
-        break;
-      default:
-        counts.up = randomNumber(8) + 1;
-        counts.mid = randomNumber(6) / 2;
-        counts.down = randomNumber(8) + 1;
-        break;
-      }
-
-      var arr = ["up", "mid", "down"];
-      for (var d in arr) {
-        var index = arr[d];
-        for (var i = 0 ; i <= counts[index]; i++) {
-          if (options[index]) {
-            result = result + soul[index][randomNumber(soul[index].length)];
-          }
-        }
-      }
-    }
-    return result;
-  }
-  // don't summon him
-  return heComes(text);
-}
-
-},{}],11:[function(require,module,exports){
-var colors = require('../colors');
-
-module['exports'] = (function() {
-  return function (letter, i, exploded) {
-    if(letter === " ") return letter;
-    switch(i%3) {
-      case 0: return colors.red(letter);
-      case 1: return colors.white(letter)
-      case 2: return colors.blue(letter)
-    }
-  }
-})();
-},{"../colors":8}],12:[function(require,module,exports){
-var colors = require('../colors');
-
-module['exports'] = (function () {
-  var rainbowColors = ['red', 'yellow', 'green', 'blue', 'magenta']; //RoY G BiV
-  return function (letter, i, exploded) {
-    if (letter === " ") {
-      return letter;
-    } else {
-      return colors[rainbowColors[i++ % rainbowColors.length]](letter);
-    }
-  };
-})();
-
-
-},{"../colors":8}],13:[function(require,module,exports){
-var colors = require('../colors');
-
-module['exports'] = (function () {
-  var available = ['underline', 'inverse', 'grey', 'yellow', 'red', 'green', 'blue', 'white', 'cyan', 'magenta'];
-  return function(letter, i, exploded) {
-    return letter === " " ? letter : colors[available[Math.round(Math.random() * (available.length - 1))]](letter);
-  };
-})();
-},{"../colors":8}],14:[function(require,module,exports){
-var colors = require('../colors');
-
-module['exports'] = function (letter, i, exploded) {
-  return i % 2 === 0 ? letter : colors.inverse(letter);
-};
-},{"../colors":8}],15:[function(require,module,exports){
-/*
-The MIT License (MIT)
-
-Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
-*/
-
-var styles = {};
-module['exports'] = styles;
-
-var codes = {
-  reset: [0, 0],
-
-  bold: [1, 22],
-  dim: [2, 22],
-  italic: [3, 23],
-  underline: [4, 24],
-  inverse: [7, 27],
-  hidden: [8, 28],
-  strikethrough: [9, 29],
-
-  black: [30, 39],
-  red: [31, 39],
-  green: [32, 39],
-  yellow: [33, 39],
-  blue: [34, 39],
-  magenta: [35, 39],
-  cyan: [36, 39],
-  white: [37, 39],
-  gray: [90, 39],
-  grey: [90, 39],
-
-  bgBlack: [40, 49],
-  bgRed: [41, 49],
-  bgGreen: [42, 49],
-  bgYellow: [43, 49],
-  bgBlue: [44, 49],
-  bgMagenta: [45, 49],
-  bgCyan: [46, 49],
-  bgWhite: [47, 49],
-
-  // legacy styles for colors pre v1.0.0
-  blackBG: [40, 49],
-  redBG: [41, 49],
-  greenBG: [42, 49],
-  yellowBG: [43, 49],
-  blueBG: [44, 49],
-  magentaBG: [45, 49],
-  cyanBG: [46, 49],
-  whiteBG: [47, 49]
-
-};
-
-Object.keys(codes).forEach(function (key) {
-  var val = codes[key];
-  var style = styles[key] = [];
-  style.open = '\u001b[' + val[0] + 'm';
-  style.close = '\u001b[' + val[1] + 'm';
-});
-},{}],16:[function(require,module,exports){
-/*
-The MIT License (MIT)
-
-Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
-*/
-
-var argv = process.argv;
-
-module.exports = (function () {
-  if (argv.indexOf('--no-color') !== -1 ||
-    argv.indexOf('--color=false') !== -1) {
-    return false;
-  }
-
-  if (argv.indexOf('--color') !== -1 ||
-    argv.indexOf('--color=true') !== -1 ||
-    argv.indexOf('--color=always') !== -1) {
-    return true;
-  }
-
-  if (process.stdout && !process.stdout.isTTY) {
-    return false;
-  }
-
-  if (process.platform === 'win32') {
-    return true;
-  }
-
-  if ('COLORTERM' in process.env) {
-    return true;
-  }
-
-  if (process.env.TERM === 'dumb') {
-    return false;
-  }
-
-  if (/^screen|^xterm|^vt100|color|ansi|cygwin|linux/i.test(process.env.TERM)) {
-    return true;
-  }
-
-  return false;
-})();
-},{}],17:[function(require,module,exports){
-//
-// Remark: Requiring this file will use the "safe" colors API which will not touch String.prototype
-//
-//   var colors = require('colors/safe);
-//   colors.red("foo")
-//
-//
-var colors = require('./lib/colors');
-module['exports'] = colors;
-},{"./lib/colors":8}],18:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1423,7 +957,7 @@ var validator = {
 
 exports.default = validator;
 module.exports = exports['default'];
-},{"./lib/blacklist":20,"./lib/contains":21,"./lib/equals":22,"./lib/escape":23,"./lib/isAfter":24,"./lib/isAlpha":25,"./lib/isAlphanumeric":26,"./lib/isAscii":27,"./lib/isBase64":28,"./lib/isBefore":29,"./lib/isBoolean":30,"./lib/isByteLength":31,"./lib/isCreditCard":32,"./lib/isCurrency":33,"./lib/isDataURI":34,"./lib/isDate":35,"./lib/isDecimal":36,"./lib/isDivisibleBy":37,"./lib/isEmail":38,"./lib/isFQDN":39,"./lib/isFloat":40,"./lib/isFullWidth":41,"./lib/isHalfWidth":42,"./lib/isHexColor":43,"./lib/isHexadecimal":44,"./lib/isIP":45,"./lib/isISBN":46,"./lib/isISIN":47,"./lib/isISO8601":48,"./lib/isIn":49,"./lib/isInt":50,"./lib/isJSON":51,"./lib/isLength":52,"./lib/isLowercase":53,"./lib/isMACAddress":54,"./lib/isMobilePhone":55,"./lib/isMongoId":56,"./lib/isMultibyte":57,"./lib/isNull":58,"./lib/isNumeric":59,"./lib/isSurrogatePair":60,"./lib/isURL":61,"./lib/isUUID":62,"./lib/isUppercase":63,"./lib/isVariableWidth":64,"./lib/isWhitelisted":65,"./lib/ltrim":66,"./lib/matches":67,"./lib/normalizeEmail":68,"./lib/rtrim":69,"./lib/stripLow":70,"./lib/toBoolean":71,"./lib/toDate":72,"./lib/toFloat":73,"./lib/toInt":74,"./lib/trim":75,"./lib/unescape":76,"./lib/util/toString":79,"./lib/whitelist":80}],19:[function(require,module,exports){
+},{"./lib/blacklist":9,"./lib/contains":10,"./lib/equals":11,"./lib/escape":12,"./lib/isAfter":13,"./lib/isAlpha":14,"./lib/isAlphanumeric":15,"./lib/isAscii":16,"./lib/isBase64":17,"./lib/isBefore":18,"./lib/isBoolean":19,"./lib/isByteLength":20,"./lib/isCreditCard":21,"./lib/isCurrency":22,"./lib/isDataURI":23,"./lib/isDate":24,"./lib/isDecimal":25,"./lib/isDivisibleBy":26,"./lib/isEmail":27,"./lib/isFQDN":28,"./lib/isFloat":29,"./lib/isFullWidth":30,"./lib/isHalfWidth":31,"./lib/isHexColor":32,"./lib/isHexadecimal":33,"./lib/isIP":34,"./lib/isISBN":35,"./lib/isISIN":36,"./lib/isISO8601":37,"./lib/isIn":38,"./lib/isInt":39,"./lib/isJSON":40,"./lib/isLength":41,"./lib/isLowercase":42,"./lib/isMACAddress":43,"./lib/isMobilePhone":44,"./lib/isMongoId":45,"./lib/isMultibyte":46,"./lib/isNull":47,"./lib/isNumeric":48,"./lib/isSurrogatePair":49,"./lib/isURL":50,"./lib/isUUID":51,"./lib/isUppercase":52,"./lib/isVariableWidth":53,"./lib/isWhitelisted":54,"./lib/ltrim":55,"./lib/matches":56,"./lib/normalizeEmail":57,"./lib/rtrim":58,"./lib/stripLow":59,"./lib/toBoolean":60,"./lib/toDate":61,"./lib/toFloat":62,"./lib/toInt":63,"./lib/trim":64,"./lib/unescape":65,"./lib/util/toString":68,"./lib/whitelist":69}],8:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1475,7 +1009,7 @@ for (var _locale, _i = 0; _i < arabicLocales.length; _i++) {
   alpha[_locale] = alpha.ar;
   alphanumeric[_locale] = alphanumeric.ar;
 }
-},{}],20:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1494,7 +1028,7 @@ function blacklist(str, chars) {
   return str.replace(new RegExp('[' + chars + ']+', 'g'), '');
 }
 module.exports = exports['default'];
-},{"./util/assertString":77}],21:[function(require,module,exports){
+},{"./util/assertString":66}],10:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1517,7 +1051,7 @@ function contains(str, elem) {
   return str.indexOf((0, _toString2.default)(elem)) >= 0;
 }
 module.exports = exports['default'];
-},{"./util/assertString":77,"./util/toString":79}],22:[function(require,module,exports){
+},{"./util/assertString":66,"./util/toString":68}],11:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1536,7 +1070,7 @@ function equals(str, comparison) {
   return str === comparison;
 }
 module.exports = exports['default'];
-},{"./util/assertString":77}],23:[function(require,module,exports){
+},{"./util/assertString":66}],12:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1555,7 +1089,7 @@ function escape(str) {
       return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#x27;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\//g, '&#x2F;').replace(/`/g, '&#96;');
 }
 module.exports = exports['default'];
-},{"./util/assertString":77}],24:[function(require,module,exports){
+},{"./util/assertString":66}],13:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1582,7 +1116,7 @@ function isAfter(str) {
   return !!(original && comparison && original > comparison);
 }
 module.exports = exports['default'];
-},{"./toDate":72,"./util/assertString":77}],25:[function(require,module,exports){
+},{"./toDate":61,"./util/assertString":66}],14:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1608,7 +1142,7 @@ function isAlpha(str) {
   throw new Error('Invalid locale \'' + locale + '\'');
 }
 module.exports = exports['default'];
-},{"./alpha":19,"./util/assertString":77}],26:[function(require,module,exports){
+},{"./alpha":8,"./util/assertString":66}],15:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1634,7 +1168,7 @@ function isAlphanumeric(str) {
   throw new Error('Invalid locale \'' + locale + '\'');
 }
 module.exports = exports['default'];
-},{"./alpha":19,"./util/assertString":77}],27:[function(require,module,exports){
+},{"./alpha":8,"./util/assertString":66}],16:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1657,7 +1191,7 @@ function isAscii(str) {
   return ascii.test(str);
 }
 module.exports = exports['default'];
-},{"./util/assertString":77}],28:[function(require,module,exports){
+},{"./util/assertString":66}],17:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1683,7 +1217,7 @@ function isBase64(str) {
   return firstPaddingChar === -1 || firstPaddingChar === len - 1 || firstPaddingChar === len - 2 && str[len - 1] === '=';
 }
 module.exports = exports['default'];
-},{"./util/assertString":77}],29:[function(require,module,exports){
+},{"./util/assertString":66}],18:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1710,7 +1244,7 @@ function isBefore(str) {
   return !!(original && comparison && original < comparison);
 }
 module.exports = exports['default'];
-},{"./toDate":72,"./util/assertString":77}],30:[function(require,module,exports){
+},{"./toDate":61,"./util/assertString":66}],19:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1729,7 +1263,7 @@ function isBoolean(str) {
   return ['true', 'false', '1', '0'].indexOf(str) >= 0;
 }
 module.exports = exports['default'];
-},{"./util/assertString":77}],31:[function(require,module,exports){
+},{"./util/assertString":66}],20:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1763,7 +1297,7 @@ function isByteLength(str, options) {
   return len >= min && (typeof max === 'undefined' || len <= max);
 }
 module.exports = exports['default'];
-},{"./util/assertString":77}],32:[function(require,module,exports){
+},{"./util/assertString":66}],21:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1809,7 +1343,7 @@ function isCreditCard(str) {
   return !!(sum % 10 === 0 ? sanitized : false);
 }
 module.exports = exports['default'];
-},{"./util/assertString":77}],33:[function(require,module,exports){
+},{"./util/assertString":66}],22:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1898,7 +1432,7 @@ function isCurrency(str, options) {
   return currencyRegex(options).test(str);
 }
 module.exports = exports['default'];
-},{"./util/assertString":77,"./util/merge":78}],34:[function(require,module,exports){
+},{"./util/assertString":66,"./util/merge":67}],23:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1919,7 +1453,7 @@ function isDataURI(str) {
   return dataURI.test(str);
 }
 module.exports = exports['default'];
-},{"./util/assertString":77}],35:[function(require,module,exports){
+},{"./util/assertString":66}],24:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2020,7 +1554,7 @@ function isDate(str) {
   return false;
 }
 module.exports = exports['default'];
-},{"./isISO8601":48,"./util/assertString":77}],36:[function(require,module,exports){
+},{"./isISO8601":37,"./util/assertString":66}],25:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2041,7 +1575,7 @@ function isDecimal(str) {
   return str !== '' && decimal.test(str);
 }
 module.exports = exports['default'];
-},{"./util/assertString":77}],37:[function(require,module,exports){
+},{"./util/assertString":66}],26:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2064,7 +1598,7 @@ function isDivisibleBy(str, num) {
   return (0, _toFloat2.default)(str) % parseInt(num, 10) === 0;
 }
 module.exports = exports['default'];
-},{"./toFloat":73,"./util/assertString":77}],38:[function(require,module,exports){
+},{"./toFloat":62,"./util/assertString":66}],27:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2151,7 +1685,7 @@ function isEmail(str, options) {
   return true;
 }
 module.exports = exports['default'];
-},{"./isByteLength":31,"./isFQDN":39,"./util/assertString":77,"./util/merge":78}],39:[function(require,module,exports){
+},{"./isByteLength":20,"./isFQDN":28,"./util/assertString":66,"./util/merge":67}],28:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2209,7 +1743,7 @@ function isFDQN(str, options) {
   return true;
 }
 module.exports = exports['default'];
-},{"./util/assertString":77,"./util/merge":78}],40:[function(require,module,exports){
+},{"./util/assertString":66,"./util/merge":67}],29:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2234,7 +1768,7 @@ function isFloat(str, options) {
   return float.test(str) && (!options.hasOwnProperty('min') || str >= options.min) && (!options.hasOwnProperty('max') || str <= options.max);
 }
 module.exports = exports['default'];
-},{"./util/assertString":77}],41:[function(require,module,exports){
+},{"./util/assertString":66}],30:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2255,7 +1789,7 @@ function isFullWidth(str) {
   (0, _assertString2.default)(str);
   return fullWidth.test(str);
 }
-},{"./util/assertString":77}],42:[function(require,module,exports){
+},{"./util/assertString":66}],31:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2276,7 +1810,7 @@ function isHalfWidth(str) {
   (0, _assertString2.default)(str);
   return halfWidth.test(str);
 }
-},{"./util/assertString":77}],43:[function(require,module,exports){
+},{"./util/assertString":66}],32:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2297,7 +1831,7 @@ function isHexColor(str) {
   return hexcolor.test(str);
 }
 module.exports = exports['default'];
-},{"./util/assertString":77}],44:[function(require,module,exports){
+},{"./util/assertString":66}],33:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2318,7 +1852,7 @@ function isHexadecimal(str) {
   return hexadecimal.test(str);
 }
 module.exports = exports['default'];
-},{"./util/assertString":77}],45:[function(require,module,exports){
+},{"./util/assertString":66}],34:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2400,7 +1934,7 @@ function isIP(str) {
   return false;
 }
 module.exports = exports['default'];
-},{"./util/assertString":77}],46:[function(require,module,exports){
+},{"./util/assertString":66}],35:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2458,7 +1992,7 @@ function isISBN(str) {
   return false;
 }
 module.exports = exports['default'];
-},{"./util/assertString":77}],47:[function(require,module,exports){
+},{"./util/assertString":66}],36:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2507,7 +2041,7 @@ function isISIN(str) {
   return parseInt(str.substr(str.length - 1), 10) === (10000 - sum) % 10;
 }
 module.exports = exports['default'];
-},{"./util/assertString":77}],48:[function(require,module,exports){
+},{"./util/assertString":66}],37:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2530,7 +2064,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 // from http://goo.gl/0ejHHW
 var iso8601 = exports.iso8601 = /^([\+-]?\d{4}(?!\d{2}\b))((-?)((0[1-9]|1[0-2])(\3([12]\d|0[1-9]|3[01]))?|W([0-4]\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\d|[12]\d{2}|3([0-5]\d|6[1-6])))([T\s]((([01]\d|2[0-3])((:?)[0-5]\d)?|24:?00)([\.,]\d+(?!:))?)?(\17[0-5]\d([\.,]\d+)?)?([zZ]|([\+-])([01]\d|2[0-3]):?([0-5]\d)?)?)?)?$/;
 /* eslint-enable max-len */
-},{"./util/assertString":77}],49:[function(require,module,exports){
+},{"./util/assertString":66}],38:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2570,7 +2104,7 @@ function isIn(str, options) {
   return false;
 }
 module.exports = exports['default'];
-},{"./util/assertString":77,"./util/toString":79}],50:[function(require,module,exports){
+},{"./util/assertString":66,"./util/toString":68}],39:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2602,7 +2136,7 @@ function isInt(str, options) {
   return regex.test(str) && minCheckPassed && maxCheckPassed;
 }
 module.exports = exports['default'];
-},{"./util/assertString":77}],51:[function(require,module,exports){
+},{"./util/assertString":66}],40:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2628,7 +2162,7 @@ function isJSON(str) {
   return false;
 }
 module.exports = exports['default'];
-},{"./util/assertString":77}],52:[function(require,module,exports){
+},{"./util/assertString":66}],41:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2663,7 +2197,7 @@ function isLength(str, options) {
   return len >= min && (typeof max === 'undefined' || len <= max);
 }
 module.exports = exports['default'];
-},{"./util/assertString":77}],53:[function(require,module,exports){
+},{"./util/assertString":66}],42:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2682,7 +2216,7 @@ function isLowercase(str) {
   return str === str.toLowerCase();
 }
 module.exports = exports['default'];
-},{"./util/assertString":77}],54:[function(require,module,exports){
+},{"./util/assertString":66}],43:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2703,7 +2237,7 @@ function isMACAddress(str) {
   return macAddress.test(str);
 }
 module.exports = exports['default'];
-},{"./util/assertString":77}],55:[function(require,module,exports){
+},{"./util/assertString":66}],44:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2762,7 +2296,7 @@ function isMobilePhone(str, locale) {
   return false;
 }
 module.exports = exports['default'];
-},{"./util/assertString":77}],56:[function(require,module,exports){
+},{"./util/assertString":66}],45:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2785,7 +2319,7 @@ function isMongoId(str) {
   return (0, _isHexadecimal2.default)(str) && str.length === 24;
 }
 module.exports = exports['default'];
-},{"./isHexadecimal":44,"./util/assertString":77}],57:[function(require,module,exports){
+},{"./isHexadecimal":33,"./util/assertString":66}],46:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2808,7 +2342,7 @@ function isMultibyte(str) {
   return multibyte.test(str);
 }
 module.exports = exports['default'];
-},{"./util/assertString":77}],58:[function(require,module,exports){
+},{"./util/assertString":66}],47:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2827,7 +2361,7 @@ function isNull(str) {
   return str.length === 0;
 }
 module.exports = exports['default'];
-},{"./util/assertString":77}],59:[function(require,module,exports){
+},{"./util/assertString":66}],48:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2848,7 +2382,7 @@ function isNumeric(str) {
   return numeric.test(str);
 }
 module.exports = exports['default'];
-},{"./util/assertString":77}],60:[function(require,module,exports){
+},{"./util/assertString":66}],49:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2869,7 +2403,7 @@ function isSurrogatePair(str) {
   return surrogatePair.test(str);
 }
 module.exports = exports['default'];
-},{"./util/assertString":77}],61:[function(require,module,exports){
+},{"./util/assertString":66}],50:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2972,7 +2506,7 @@ function isURL(url, options) {
   return true;
 }
 module.exports = exports['default'];
-},{"./isFQDN":39,"./isIP":45,"./util/assertString":77,"./util/merge":78}],62:[function(require,module,exports){
+},{"./isFQDN":28,"./isIP":34,"./util/assertString":66,"./util/merge":67}],51:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3001,7 +2535,7 @@ function isUUID(str) {
   return pattern && pattern.test(str);
 }
 module.exports = exports['default'];
-},{"./util/assertString":77}],63:[function(require,module,exports){
+},{"./util/assertString":66}],52:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3020,7 +2554,7 @@ function isUppercase(str) {
   return str === str.toUpperCase();
 }
 module.exports = exports['default'];
-},{"./util/assertString":77}],64:[function(require,module,exports){
+},{"./util/assertString":66}],53:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3043,7 +2577,7 @@ function isVariableWidth(str) {
   return _isFullWidth.fullWidth.test(str) && _isHalfWidth.halfWidth.test(str);
 }
 module.exports = exports['default'];
-},{"./isFullWidth":41,"./isHalfWidth":42,"./util/assertString":77}],65:[function(require,module,exports){
+},{"./isFullWidth":30,"./isHalfWidth":31,"./util/assertString":66}],54:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3067,7 +2601,7 @@ function isWhitelisted(str, chars) {
   return true;
 }
 module.exports = exports['default'];
-},{"./util/assertString":77}],66:[function(require,module,exports){
+},{"./util/assertString":66}],55:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3087,7 +2621,7 @@ function ltrim(str, chars) {
   return str.replace(pattern, '');
 }
 module.exports = exports['default'];
-},{"./util/assertString":77}],67:[function(require,module,exports){
+},{"./util/assertString":66}],56:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3109,7 +2643,7 @@ function matches(str, pattern, modifiers) {
   return pattern.test(str);
 }
 module.exports = exports['default'];
-},{"./util/assertString":77}],68:[function(require,module,exports){
+},{"./util/assertString":66}],57:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3158,7 +2692,7 @@ function normalizeEmail(email, options) {
   return parts.join('@');
 }
 module.exports = exports['default'];
-},{"./isEmail":38,"./util/merge":78}],69:[function(require,module,exports){
+},{"./isEmail":27,"./util/merge":67}],58:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3184,7 +2718,7 @@ function rtrim(str, chars) {
   return idx < str.length ? str.substr(0, idx + 1) : str;
 }
 module.exports = exports['default'];
-},{"./util/assertString":77}],70:[function(require,module,exports){
+},{"./util/assertString":66}],59:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3208,7 +2742,7 @@ function stripLow(str, keep_new_lines) {
   return (0, _blacklist2.default)(str, chars);
 }
 module.exports = exports['default'];
-},{"./blacklist":20,"./util/assertString":77}],71:[function(require,module,exports){
+},{"./blacklist":9,"./util/assertString":66}],60:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3230,7 +2764,7 @@ function toBoolean(str, strict) {
   return str !== '0' && str !== 'false' && str !== '';
 }
 module.exports = exports['default'];
-},{"./util/assertString":77}],72:[function(require,module,exports){
+},{"./util/assertString":66}],61:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3250,7 +2784,7 @@ function toDate(date) {
   return !isNaN(date) ? new Date(date) : null;
 }
 module.exports = exports['default'];
-},{"./util/assertString":77}],73:[function(require,module,exports){
+},{"./util/assertString":66}],62:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3269,7 +2803,7 @@ function toFloat(str) {
   return parseFloat(str);
 }
 module.exports = exports['default'];
-},{"./util/assertString":77}],74:[function(require,module,exports){
+},{"./util/assertString":66}],63:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3288,7 +2822,7 @@ function toInt(str, radix) {
   return parseInt(str, radix || 10);
 }
 module.exports = exports['default'];
-},{"./util/assertString":77}],75:[function(require,module,exports){
+},{"./util/assertString":66}],64:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3310,7 +2844,7 @@ function trim(str, chars) {
   return (0, _rtrim2.default)((0, _ltrim2.default)(str, chars), chars);
 }
 module.exports = exports['default'];
-},{"./ltrim":66,"./rtrim":69}],76:[function(require,module,exports){
+},{"./ltrim":55,"./rtrim":58}],65:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3329,7 +2863,7 @@ function unescape(str) {
       return str.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#x27;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&#x2F;/g, '/').replace(/&#96;/g, '`');
 }
 module.exports = exports['default'];
-},{"./util/assertString":77}],77:[function(require,module,exports){
+},{"./util/assertString":66}],66:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3342,7 +2876,7 @@ function assertString(input) {
   }
 }
 module.exports = exports['default'];
-},{}],78:[function(require,module,exports){
+},{}],67:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3361,7 +2895,7 @@ function merge() {
   return obj;
 }
 module.exports = exports['default'];
-},{}],79:[function(require,module,exports){
+},{}],68:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3384,7 +2918,7 @@ function toString(input) {
   return String(input);
 }
 module.exports = exports['default'];
-},{}],80:[function(require,module,exports){
+},{}],69:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3403,5 +2937,5 @@ function whitelist(str, chars) {
   return str.replace(new RegExp('[^' + chars + ']+', 'g'), '');
 }
 module.exports = exports['default'];
-},{"./util/assertString":77}]},{},[3])(3)
+},{"./util/assertString":66}]},{},[3])(3)
 });
