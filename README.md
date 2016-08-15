@@ -15,6 +15,8 @@ Marshall is very heavily inspired by [convict](https://www.npmjs.com/package/con
 - Built-in documentation
 - Strict validation by default
 
+> Warning: if your server config contains sensitive data, don't share it with your web application, since your secrets will be built into your application bundle.
+
 ## Install
 
 ```bash

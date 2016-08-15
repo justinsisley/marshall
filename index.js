@@ -82,7 +82,7 @@ var marshall = function marshall(config) {
 
       tableRows.forEach(function(row) {
         table.cell('Config', row[0]);
-        table.cell('Value', row[1]);
+        table.cell('Value', row[1] || '(no value provided)');
         table.cell('Description', row[2]);
         table.newRow();
       });
