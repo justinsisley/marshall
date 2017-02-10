@@ -3,7 +3,9 @@ module.exports = function(arg) {
   var regex = /^[\s|\-]*([^\s=]+)[\s|=]{1}["|']?([^\s="']+)["|']?/;
   var parsed = regex.exec(arg);
 
-  if (!parsed) {return null;}
+  if (!parsed) {
+    return null;
+  }
 
   return {
     key: parsed[1],
@@ -74,7 +76,10 @@ var marshall = function marshall(config) {
 
   return {
     get: function get(key) {
-      if (!key) {return parsedConfig;}
+      if (!key) {
+        return parsedConfig;
+      }
+
       return parsedConfig[key];
     },
     doc: function doc() {
@@ -802,13 +807,17 @@ var _isHexColor = require('./lib/isHexColor');
 
 var _isHexColor2 = _interopRequireDefault(_isHexColor);
 
+var _isMD = require('./lib/isMD5');
+
+var _isMD2 = _interopRequireDefault(_isMD);
+
 var _isJSON = require('./lib/isJSON');
 
 var _isJSON2 = _interopRequireDefault(_isJSON);
 
-var _isNull = require('./lib/isNull');
+var _isEmpty = require('./lib/isEmpty');
 
-var _isNull2 = _interopRequireDefault(_isNull);
+var _isEmpty2 = _interopRequireDefault(_isEmpty);
 
 var _isLength = require('./lib/isLength');
 
@@ -853,6 +862,10 @@ var _isISIN2 = _interopRequireDefault(_isISIN);
 var _isISBN = require('./lib/isISBN');
 
 var _isISBN2 = _interopRequireDefault(_isISBN);
+
+var _isISSN = require('./lib/isISSN');
+
+var _isISSN2 = _interopRequireDefault(_isISSN);
 
 var _isMobilePhone = require('./lib/isMobilePhone');
 
@@ -920,36 +933,68 @@ var _toString2 = _interopRequireDefault(_toString);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var version = '5.5.0';
+var version = '6.2.1';
 
 var validator = {
   version: version,
   toDate: _toDate2.default,
-  toFloat: _toFloat2.default, toInt: _toInt2.default,
+  toFloat: _toFloat2.default,
+  toInt: _toInt2.default,
   toBoolean: _toBoolean2.default,
-  equals: _equals2.default, contains: _contains2.default, matches: _matches2.default,
-  isEmail: _isEmail2.default, isURL: _isURL2.default, isMACAddress: _isMACAddress2.default, isIP: _isIP2.default, isFQDN: _isFQDN2.default,
+  equals: _equals2.default,
+  contains: _contains2.default,
+  matches: _matches2.default,
+  isEmail: _isEmail2.default,
+  isURL: _isURL2.default,
+  isMACAddress: _isMACAddress2.default,
+  isIP: _isIP2.default,
+  isFQDN: _isFQDN2.default,
   isBoolean: _isBoolean2.default,
-  isAlpha: _isAlpha2.default, isAlphanumeric: _isAlphanumeric2.default, isNumeric: _isNumeric2.default, isLowercase: _isLowercase2.default, isUppercase: _isUppercase2.default,
-  isAscii: _isAscii2.default, isFullWidth: _isFullWidth2.default, isHalfWidth: _isHalfWidth2.default, isVariableWidth: _isVariableWidth2.default,
-  isMultibyte: _isMultibyte2.default, isSurrogatePair: _isSurrogatePair2.default,
-  isInt: _isInt2.default, isFloat: _isFloat2.default, isDecimal: _isDecimal2.default, isHexadecimal: _isHexadecimal2.default, isDivisibleBy: _isDivisibleBy2.default,
+  isAlpha: _isAlpha2.default,
+  isAlphanumeric: _isAlphanumeric2.default,
+  isNumeric: _isNumeric2.default,
+  isLowercase: _isLowercase2.default,
+  isUppercase: _isUppercase2.default,
+  isAscii: _isAscii2.default,
+  isFullWidth: _isFullWidth2.default,
+  isHalfWidth: _isHalfWidth2.default,
+  isVariableWidth: _isVariableWidth2.default,
+  isMultibyte: _isMultibyte2.default,
+  isSurrogatePair: _isSurrogatePair2.default,
+  isInt: _isInt2.default,
+  isFloat: _isFloat2.default,
+  isDecimal: _isDecimal2.default,
+  isHexadecimal: _isHexadecimal2.default,
+  isDivisibleBy: _isDivisibleBy2.default,
   isHexColor: _isHexColor2.default,
+  isMD5: _isMD2.default,
   isJSON: _isJSON2.default,
-  isNull: _isNull2.default,
-  isLength: _isLength2.default, isByteLength: _isByteLength2.default,
-  isUUID: _isUUID2.default, isMongoId: _isMongoId2.default,
-  isDate: _isDate2.default, isAfter: _isAfter2.default, isBefore: _isBefore2.default,
+  isEmpty: _isEmpty2.default,
+  isLength: _isLength2.default,
+  isByteLength: _isByteLength2.default,
+  isUUID: _isUUID2.default,
+  isMongoId: _isMongoId2.default,
+  isDate: _isDate2.default,
+  isAfter: _isAfter2.default,
+  isBefore: _isBefore2.default,
   isIn: _isIn2.default,
   isCreditCard: _isCreditCard2.default,
-  isISIN: _isISIN2.default, isISBN: _isISBN2.default,
+  isISIN: _isISIN2.default,
+  isISBN: _isISBN2.default,
+  isISSN: _isISSN2.default,
   isMobilePhone: _isMobilePhone2.default,
   isCurrency: _isCurrency2.default,
   isISO8601: _isISO2.default,
-  isBase64: _isBase2.default, isDataURI: _isDataURI2.default,
-  ltrim: _ltrim2.default, rtrim: _rtrim2.default, trim: _trim2.default,
-  escape: _escape2.default, unescape: _unescape2.default, stripLow: _stripLow2.default,
-  whitelist: _whitelist2.default, blacklist: _blacklist2.default,
+  isBase64: _isBase2.default,
+  isDataURI: _isDataURI2.default,
+  ltrim: _ltrim2.default,
+  rtrim: _rtrim2.default,
+  trim: _trim2.default,
+  escape: _escape2.default,
+  unescape: _unescape2.default,
+  stripLow: _stripLow2.default,
+  whitelist: _whitelist2.default,
+  blacklist: _blacklist2.default,
   isWhitelisted: _isWhitelisted2.default,
   normalizeEmail: _normalizeEmail2.default,
   toString: _toString2.default
@@ -957,7 +1002,7 @@ var validator = {
 
 exports.default = validator;
 module.exports = exports['default'];
-},{"./lib/blacklist":9,"./lib/contains":10,"./lib/equals":11,"./lib/escape":12,"./lib/isAfter":13,"./lib/isAlpha":14,"./lib/isAlphanumeric":15,"./lib/isAscii":16,"./lib/isBase64":17,"./lib/isBefore":18,"./lib/isBoolean":19,"./lib/isByteLength":20,"./lib/isCreditCard":21,"./lib/isCurrency":22,"./lib/isDataURI":23,"./lib/isDate":24,"./lib/isDecimal":25,"./lib/isDivisibleBy":26,"./lib/isEmail":27,"./lib/isFQDN":28,"./lib/isFloat":29,"./lib/isFullWidth":30,"./lib/isHalfWidth":31,"./lib/isHexColor":32,"./lib/isHexadecimal":33,"./lib/isIP":34,"./lib/isISBN":35,"./lib/isISIN":36,"./lib/isISO8601":37,"./lib/isIn":38,"./lib/isInt":39,"./lib/isJSON":40,"./lib/isLength":41,"./lib/isLowercase":42,"./lib/isMACAddress":43,"./lib/isMobilePhone":44,"./lib/isMongoId":45,"./lib/isMultibyte":46,"./lib/isNull":47,"./lib/isNumeric":48,"./lib/isSurrogatePair":49,"./lib/isURL":50,"./lib/isUUID":51,"./lib/isUppercase":52,"./lib/isVariableWidth":53,"./lib/isWhitelisted":54,"./lib/ltrim":55,"./lib/matches":56,"./lib/normalizeEmail":57,"./lib/rtrim":58,"./lib/stripLow":59,"./lib/toBoolean":60,"./lib/toDate":61,"./lib/toFloat":62,"./lib/toInt":63,"./lib/trim":64,"./lib/unescape":65,"./lib/util/toString":68,"./lib/whitelist":69}],8:[function(require,module,exports){
+},{"./lib/blacklist":9,"./lib/contains":10,"./lib/equals":11,"./lib/escape":12,"./lib/isAfter":13,"./lib/isAlpha":14,"./lib/isAlphanumeric":15,"./lib/isAscii":16,"./lib/isBase64":17,"./lib/isBefore":18,"./lib/isBoolean":19,"./lib/isByteLength":20,"./lib/isCreditCard":21,"./lib/isCurrency":22,"./lib/isDataURI":23,"./lib/isDate":24,"./lib/isDecimal":25,"./lib/isDivisibleBy":26,"./lib/isEmail":27,"./lib/isEmpty":28,"./lib/isFQDN":29,"./lib/isFloat":30,"./lib/isFullWidth":31,"./lib/isHalfWidth":32,"./lib/isHexColor":33,"./lib/isHexadecimal":34,"./lib/isIP":35,"./lib/isISBN":36,"./lib/isISIN":37,"./lib/isISO8601":38,"./lib/isISSN":39,"./lib/isIn":40,"./lib/isInt":41,"./lib/isJSON":42,"./lib/isLength":43,"./lib/isLowercase":44,"./lib/isMACAddress":45,"./lib/isMD5":46,"./lib/isMobilePhone":47,"./lib/isMongoId":48,"./lib/isMultibyte":49,"./lib/isNumeric":50,"./lib/isSurrogatePair":51,"./lib/isURL":52,"./lib/isUUID":53,"./lib/isUppercase":54,"./lib/isVariableWidth":55,"./lib/isWhitelisted":56,"./lib/ltrim":57,"./lib/matches":58,"./lib/normalizeEmail":59,"./lib/rtrim":60,"./lib/stripLow":61,"./lib/toBoolean":62,"./lib/toDate":63,"./lib/toFloat":64,"./lib/toInt":65,"./lib/trim":66,"./lib/unescape":67,"./lib/util/toString":70,"./lib/whitelist":71}],8:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -966,6 +1011,7 @@ Object.defineProperty(exports, "__esModule", {
 var alpha = exports.alpha = {
   'en-US': /^[A-Z]+$/i,
   'cs-CZ': /^[A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ]+$/i,
+  'da-DK': /^[A-ZÆØÅ]+$/i,
   'de-DE': /^[A-ZÄÖÜß]+$/i,
   'es-ES': /^[A-ZÁÉÍÑÓÚÜ]+$/i,
   'fr-FR': /^[A-ZÀÂÆÇÉÈÊËÏÎÔŒÙÛÜŸ]+$/i,
@@ -973,14 +1019,18 @@ var alpha = exports.alpha = {
   'hu-HU': /^[A-ZÁÉÍÓÖŐÚÜŰ]+$/i,
   'pl-PL': /^[A-ZĄĆĘŚŁŃÓŻŹ]+$/i,
   'pt-PT': /^[A-ZÃÁÀÂÇÉÊÍÕÓÔÚÜ]+$/i,
-  'ru-RU': /^[А-ЯЁа-яё]+$/i,
+  'ru-RU': /^[А-ЯЁ]+$/i,
+  'sr-RS@latin': /^[A-ZČĆŽŠĐ]+$/i,
+  'sr-RS': /^[А-ЯЂЈЉЊЋЏ]+$/i,
   'tr-TR': /^[A-ZÇĞİıÖŞÜ]+$/i,
+  'uk-UA': /^[А-ЯЄIЇҐ]+$/i,
   ar: /^[ءآأؤإئابةتثجحخدذرزسشصضطظعغفقكلمنهوىيًٌٍَُِّْٰ]+$/
 };
 
 var alphanumeric = exports.alphanumeric = {
   'en-US': /^[0-9A-Z]+$/i,
   'cs-CZ': /^[0-9A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ]+$/i,
+  'da-DK': /^[0-9A-ZÆØÅ]$/i,
   'de-DE': /^[0-9A-ZÄÖÜß]+$/i,
   'es-ES': /^[0-9A-ZÁÉÍÑÓÚÜ]+$/i,
   'fr-FR': /^[0-9A-ZÀÂÆÇÉÈÊËÏÎÔŒÙÛÜŸ]+$/i,
@@ -988,8 +1038,11 @@ var alphanumeric = exports.alphanumeric = {
   'nl-NL': /^[0-9A-ZÉËÏÓÖÜ]+$/i,
   'pl-PL': /^[0-9A-ZĄĆĘŚŁŃÓŻŹ]+$/i,
   'pt-PT': /^[0-9A-ZÃÁÀÂÇÉÊÍÕÓÔÚÜ]+$/i,
-  'ru-RU': /^[0-9А-ЯЁа-яё]+$/i,
+  'ru-RU': /^[0-9А-ЯЁ]+$/i,
+  'sr-RS@latin': /^[0-9A-ZČĆŽŠĐ]+$/i,
+  'sr-RS': /^[0-9А-ЯЂЈЉЊЋЏ]+$/i,
   'tr-TR': /^[0-9A-ZÇĞİıÖŞÜ]+$/i,
+  'uk-UA': /^[0-9А-ЯЄIЇҐ]+$/i,
   ar: /^[٠١٢٣٤٥٦٧٨٩0-9ءآأؤإئابةتثجحخدذرزسشصضطظعغفقكلمنهوىيًٌٍَُِّْٰ]+$/
 };
 
@@ -1000,6 +1053,9 @@ for (var locale, i = 0; i < englishLocales.length; i++) {
   alpha[locale] = alpha['en-US'];
   alphanumeric[locale] = alphanumeric['en-US'];
 }
+
+alpha['pt-BR'] = alpha['pt-PT'];
+alphanumeric['pt-BR'] = alphanumeric['pt-PT'];
 
 // Source: http://www.localeplanet.com/java/
 var arabicLocales = exports.arabicLocales = ['AE', 'BH', 'DZ', 'EG', 'IQ', 'JO', 'KW', 'LB', 'LY', 'MA', 'QM', 'QA', 'SA', 'SD', 'SY', 'TN', 'YE'];
@@ -1028,7 +1084,7 @@ function blacklist(str, chars) {
   return str.replace(new RegExp('[' + chars + ']+', 'g'), '');
 }
 module.exports = exports['default'];
-},{"./util/assertString":66}],10:[function(require,module,exports){
+},{"./util/assertString":68}],10:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1051,7 +1107,7 @@ function contains(str, elem) {
   return str.indexOf((0, _toString2.default)(elem)) >= 0;
 }
 module.exports = exports['default'];
-},{"./util/assertString":66,"./util/toString":68}],11:[function(require,module,exports){
+},{"./util/assertString":68,"./util/toString":70}],11:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1070,7 +1126,7 @@ function equals(str, comparison) {
   return str === comparison;
 }
 module.exports = exports['default'];
-},{"./util/assertString":66}],12:[function(require,module,exports){
+},{"./util/assertString":68}],12:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1086,10 +1142,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function escape(str) {
       (0, _assertString2.default)(str);
-      return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#x27;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\//g, '&#x2F;').replace(/`/g, '&#96;');
+      return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#x27;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\//g, '&#x2F;').replace(/\\/g, '&#x5C;').replace(/`/g, '&#96;');
 }
 module.exports = exports['default'];
-},{"./util/assertString":66}],13:[function(require,module,exports){
+},{"./util/assertString":68}],13:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1108,7 +1164,7 @@ var _toDate2 = _interopRequireDefault(_toDate);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function isAfter(str) {
-  var date = arguments.length <= 1 || arguments[1] === undefined ? String(new Date()) : arguments[1];
+  var date = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : String(new Date());
 
   (0, _assertString2.default)(str);
   var comparison = (0, _toDate2.default)(date);
@@ -1116,7 +1172,7 @@ function isAfter(str) {
   return !!(original && comparison && original > comparison);
 }
 module.exports = exports['default'];
-},{"./toDate":61,"./util/assertString":66}],14:[function(require,module,exports){
+},{"./toDate":63,"./util/assertString":68}],14:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1133,7 +1189,7 @@ var _alpha = require('./alpha');
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function isAlpha(str) {
-  var locale = arguments.length <= 1 || arguments[1] === undefined ? 'en-US' : arguments[1];
+  var locale = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'en-US';
 
   (0, _assertString2.default)(str);
   if (locale in _alpha.alpha) {
@@ -1142,7 +1198,7 @@ function isAlpha(str) {
   throw new Error('Invalid locale \'' + locale + '\'');
 }
 module.exports = exports['default'];
-},{"./alpha":8,"./util/assertString":66}],15:[function(require,module,exports){
+},{"./alpha":8,"./util/assertString":68}],15:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1159,7 +1215,7 @@ var _alpha = require('./alpha');
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function isAlphanumeric(str) {
-  var locale = arguments.length <= 1 || arguments[1] === undefined ? 'en-US' : arguments[1];
+  var locale = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'en-US';
 
   (0, _assertString2.default)(str);
   if (locale in _alpha.alphanumeric) {
@@ -1168,7 +1224,7 @@ function isAlphanumeric(str) {
   throw new Error('Invalid locale \'' + locale + '\'');
 }
 module.exports = exports['default'];
-},{"./alpha":8,"./util/assertString":66}],16:[function(require,module,exports){
+},{"./alpha":8,"./util/assertString":68}],16:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1191,7 +1247,7 @@ function isAscii(str) {
   return ascii.test(str);
 }
 module.exports = exports['default'];
-},{"./util/assertString":66}],17:[function(require,module,exports){
+},{"./util/assertString":68}],17:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1217,7 +1273,7 @@ function isBase64(str) {
   return firstPaddingChar === -1 || firstPaddingChar === len - 1 || firstPaddingChar === len - 2 && str[len - 1] === '=';
 }
 module.exports = exports['default'];
-},{"./util/assertString":66}],18:[function(require,module,exports){
+},{"./util/assertString":68}],18:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1236,7 +1292,7 @@ var _toDate2 = _interopRequireDefault(_toDate);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function isBefore(str) {
-  var date = arguments.length <= 1 || arguments[1] === undefined ? String(new Date()) : arguments[1];
+  var date = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : String(new Date());
 
   (0, _assertString2.default)(str);
   var comparison = (0, _toDate2.default)(date);
@@ -1244,7 +1300,7 @@ function isBefore(str) {
   return !!(original && comparison && original < comparison);
 }
 module.exports = exports['default'];
-},{"./toDate":61,"./util/assertString":66}],19:[function(require,module,exports){
+},{"./toDate":63,"./util/assertString":68}],19:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1263,14 +1319,14 @@ function isBoolean(str) {
   return ['true', 'false', '1', '0'].indexOf(str) >= 0;
 }
 module.exports = exports['default'];
-},{"./util/assertString":66}],20:[function(require,module,exports){
+},{"./util/assertString":68}],20:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 exports.default = isByteLength;
 
@@ -1297,7 +1353,7 @@ function isByteLength(str, options) {
   return len >= min && (typeof max === 'undefined' || len <= max);
 }
 module.exports = exports['default'];
-},{"./util/assertString":66}],21:[function(require,module,exports){
+},{"./util/assertString":68}],21:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1312,7 +1368,7 @@ var _assertString2 = _interopRequireDefault(_assertString);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /* eslint-disable max-len */
-var creditCard = /^(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|6(?:011|5[0-9][0-9])[0-9]{12}|3[47][0-9]{13}|3(?:0[0-5]|[68][0-9])[0-9]{11}|(?:2131|1800|35\d{3})\d{11})|62[0-9]{14}$/;
+var creditCard = /^(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|(222[1-9]|22[3-9][0-9]|2[3-6][0-9]{2}|27[01][0-9]|2720)[0-9]{12}|6(?:011|5[0-9][0-9])[0-9]{12}|3[47][0-9]{13}|3(?:0[0-5]|[68][0-9])[0-9]{11}|(?:2131|1800|35\d{3})\d{11})|62[0-9]{14}$/;
 /* eslint-enable max-len */
 
 function isCreditCard(str) {
@@ -1343,7 +1399,7 @@ function isCreditCard(str) {
   return !!(sum % 10 === 0 ? sanitized : false);
 }
 module.exports = exports['default'];
-},{"./util/assertString":66}],22:[function(require,module,exports){
+},{"./util/assertString":68}],22:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1432,7 +1488,7 @@ function isCurrency(str, options) {
   return currencyRegex(options).test(str);
 }
 module.exports = exports['default'];
-},{"./util/assertString":66,"./util/merge":67}],23:[function(require,module,exports){
+},{"./util/assertString":68,"./util/merge":69}],23:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1453,7 +1509,7 @@ function isDataURI(str) {
   return dataURI.test(str);
 }
 module.exports = exports['default'];
-},{"./util/assertString":66}],24:[function(require,module,exports){
+},{"./util/assertString":68}],24:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1537,7 +1593,7 @@ function isDate(str) {
   // check for valid double digits that could be late days
   // check for all matches since a string like '12/23' is a valid date
   // ignore everything with nearby colons
-  dayOrYearMatches = str.match(/(^|[^:\d])[23]\d([^:\d]|$)/g);
+  dayOrYearMatches = str.match(/(^|[^:\d])[23]\d([^T:\d]|$)/g);
   if (!dayOrYearMatches) {
     return true;
   }
@@ -1554,7 +1610,7 @@ function isDate(str) {
   return false;
 }
 module.exports = exports['default'];
-},{"./isISO8601":37,"./util/assertString":66}],25:[function(require,module,exports){
+},{"./isISO8601":38,"./util/assertString":68}],25:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1575,7 +1631,7 @@ function isDecimal(str) {
   return str !== '' && decimal.test(str);
 }
 module.exports = exports['default'];
-},{"./util/assertString":66}],26:[function(require,module,exports){
+},{"./util/assertString":68}],26:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1598,7 +1654,7 @@ function isDivisibleBy(str, num) {
   return (0, _toFloat2.default)(str) % parseInt(num, 10) === 0;
 }
 module.exports = exports['default'];
-},{"./toFloat":62,"./util/assertString":66}],27:[function(require,module,exports){
+},{"./toFloat":64,"./util/assertString":68}],27:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1626,6 +1682,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var default_email_options = {
   allow_display_name: false,
+  require_display_name: false,
   allow_utf8_local_part: true,
   require_tld: true
 };
@@ -1644,10 +1701,12 @@ function isEmail(str, options) {
   (0, _assertString2.default)(str);
   options = (0, _merge2.default)(options, default_email_options);
 
-  if (options.allow_display_name) {
+  if (options.require_display_name || options.allow_display_name) {
     var display_email = str.match(displayName);
     if (display_email) {
       str = display_email[1];
+    } else if (options.require_display_name) {
+      return false;
     }
   }
 
@@ -1685,7 +1744,26 @@ function isEmail(str, options) {
   return true;
 }
 module.exports = exports['default'];
-},{"./isByteLength":20,"./isFQDN":28,"./util/assertString":66,"./util/merge":67}],28:[function(require,module,exports){
+},{"./isByteLength":20,"./isFQDN":29,"./util/assertString":68,"./util/merge":69}],28:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = isEmpty;
+
+var _assertString = require('./util/assertString');
+
+var _assertString2 = _interopRequireDefault(_assertString);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function isEmpty(str) {
+  (0, _assertString2.default)(str);
+  return str.length === 0;
+}
+module.exports = exports['default'];
+},{"./util/assertString":68}],29:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1743,7 +1821,7 @@ function isFDQN(str, options) {
   return true;
 }
 module.exports = exports['default'];
-},{"./util/assertString":66,"./util/merge":67}],29:[function(require,module,exports){
+},{"./util/assertString":68,"./util/merge":69}],30:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1765,10 +1843,10 @@ function isFloat(str, options) {
   if (str === '' || str === '.') {
     return false;
   }
-  return float.test(str) && (!options.hasOwnProperty('min') || str >= options.min) && (!options.hasOwnProperty('max') || str <= options.max);
+  return float.test(str) && (!options.hasOwnProperty('min') || str >= options.min) && (!options.hasOwnProperty('max') || str <= options.max) && (!options.hasOwnProperty('lt') || str < options.lt) && (!options.hasOwnProperty('gt') || str > options.gt);
 }
 module.exports = exports['default'];
-},{"./util/assertString":66}],30:[function(require,module,exports){
+},{"./util/assertString":68}],31:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1789,7 +1867,7 @@ function isFullWidth(str) {
   (0, _assertString2.default)(str);
   return fullWidth.test(str);
 }
-},{"./util/assertString":66}],31:[function(require,module,exports){
+},{"./util/assertString":68}],32:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1810,7 +1888,7 @@ function isHalfWidth(str) {
   (0, _assertString2.default)(str);
   return halfWidth.test(str);
 }
-},{"./util/assertString":66}],32:[function(require,module,exports){
+},{"./util/assertString":68}],33:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1831,7 +1909,7 @@ function isHexColor(str) {
   return hexcolor.test(str);
 }
 module.exports = exports['default'];
-},{"./util/assertString":66}],33:[function(require,module,exports){
+},{"./util/assertString":68}],34:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1852,7 +1930,7 @@ function isHexadecimal(str) {
   return hexadecimal.test(str);
 }
 module.exports = exports['default'];
-},{"./util/assertString":66}],34:[function(require,module,exports){
+},{"./util/assertString":68}],35:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1870,7 +1948,7 @@ var ipv4Maybe = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
 var ipv6Block = /^[0-9A-F]{1,4}$/i;
 
 function isIP(str) {
-  var version = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
+  var version = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
 
   (0, _assertString2.default)(str);
   version = String(version);
@@ -1934,7 +2012,7 @@ function isIP(str) {
   return false;
 }
 module.exports = exports['default'];
-},{"./util/assertString":66}],35:[function(require,module,exports){
+},{"./util/assertString":68}],36:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1953,7 +2031,7 @@ var isbn13Maybe = /^(?:[0-9]{13})$/;
 var factor = [1, 3];
 
 function isISBN(str) {
-  var version = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
+  var version = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
 
   (0, _assertString2.default)(str);
   version = String(version);
@@ -1992,7 +2070,7 @@ function isISBN(str) {
   return false;
 }
 module.exports = exports['default'];
-},{"./util/assertString":66}],36:[function(require,module,exports){
+},{"./util/assertString":68}],37:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2041,7 +2119,7 @@ function isISIN(str) {
   return parseInt(str.substr(str.length - 1), 10) === (10000 - sum) % 10;
 }
 module.exports = exports['default'];
-},{"./util/assertString":66}],37:[function(require,module,exports){
+},{"./util/assertString":68}],38:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2064,14 +2142,73 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 // from http://goo.gl/0ejHHW
 var iso8601 = exports.iso8601 = /^([\+-]?\d{4}(?!\d{2}\b))((-?)((0[1-9]|1[0-2])(\3([12]\d|0[1-9]|3[01]))?|W([0-4]\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\d|[12]\d{2}|3([0-5]\d|6[1-6])))([T\s]((([01]\d|2[0-3])((:?)[0-5]\d)?|24:?00)([\.,]\d+(?!:))?)?(\17[0-5]\d([\.,]\d+)?)?([zZ]|([\+-])([01]\d|2[0-3]):?([0-5]\d)?)?)?)?$/;
 /* eslint-enable max-len */
-},{"./util/assertString":66}],38:[function(require,module,exports){
+},{"./util/assertString":68}],39:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = isISSN;
+
+var _assertString = require('./util/assertString');
+
+var _assertString2 = _interopRequireDefault(_assertString);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var issn = '^\\d{4}-?\\d{3}[\\dX]$';
+
+function isISSN(str) {
+  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+  (0, _assertString2.default)(str);
+  var testIssn = issn;
+  testIssn = options.require_hyphen ? testIssn.replace('?', '') : testIssn;
+  testIssn = options.case_sensitive ? new RegExp(testIssn) : new RegExp(testIssn, 'i');
+  if (!testIssn.test(str)) {
+    return false;
+  }
+  var issnDigits = str.replace('-', '');
+  var position = 8;
+  var checksum = 0;
+  var _iteratorNormalCompletion = true;
+  var _didIteratorError = false;
+  var _iteratorError = undefined;
+
+  try {
+    for (var _iterator = issnDigits[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+      var digit = _step.value;
+
+      var digitValue = digit.toUpperCase() === 'X' ? 10 : +digit;
+      checksum += digitValue * position;
+      --position;
+    }
+  } catch (err) {
+    _didIteratorError = true;
+    _iteratorError = err;
+  } finally {
+    try {
+      if (!_iteratorNormalCompletion && _iterator.return) {
+        _iterator.return();
+      }
+    } finally {
+      if (_didIteratorError) {
+        throw _iteratorError;
+      }
+    }
+  }
+
+  return checksum % 11 === 0;
+}
+module.exports = exports['default'];
+},{"./util/assertString":68}],40:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 exports.default = isIn;
 
@@ -2104,7 +2241,7 @@ function isIn(str, options) {
   return false;
 }
 module.exports = exports['default'];
-},{"./util/assertString":66,"./util/toString":68}],39:[function(require,module,exports){
+},{"./util/assertString":68,"./util/toString":70}],41:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2127,23 +2264,25 @@ function isInt(str, options) {
 
   // Get the regex to use for testing, based on whether
   // leading zeroes are allowed or not.
-  var regex = options.hasOwnProperty('allow_leading_zeroes') && options.allow_leading_zeroes ? intLeadingZeroes : int;
+  var regex = options.hasOwnProperty('allow_leading_zeroes') && !options.allow_leading_zeroes ? int : intLeadingZeroes;
 
-  // Check min/max
+  // Check min/max/lt/gt
   var minCheckPassed = !options.hasOwnProperty('min') || str >= options.min;
   var maxCheckPassed = !options.hasOwnProperty('max') || str <= options.max;
+  var ltCheckPassed = !options.hasOwnProperty('lt') || str < options.lt;
+  var gtCheckPassed = !options.hasOwnProperty('gt') || str > options.gt;
 
-  return regex.test(str) && minCheckPassed && maxCheckPassed;
+  return regex.test(str) && minCheckPassed && maxCheckPassed && ltCheckPassed && gtCheckPassed;
 }
 module.exports = exports['default'];
-},{"./util/assertString":66}],40:[function(require,module,exports){
+},{"./util/assertString":68}],42:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 exports.default = isJSON;
 
@@ -2162,14 +2301,14 @@ function isJSON(str) {
   return false;
 }
 module.exports = exports['default'];
-},{"./util/assertString":66}],41:[function(require,module,exports){
+},{"./util/assertString":68}],43:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 exports.default = isLength;
 
@@ -2197,7 +2336,7 @@ function isLength(str, options) {
   return len >= min && (typeof max === 'undefined' || len <= max);
 }
 module.exports = exports['default'];
-},{"./util/assertString":66}],42:[function(require,module,exports){
+},{"./util/assertString":68}],44:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2216,7 +2355,7 @@ function isLowercase(str) {
   return str === str.toLowerCase();
 }
 module.exports = exports['default'];
-},{"./util/assertString":66}],43:[function(require,module,exports){
+},{"./util/assertString":68}],45:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2237,7 +2376,28 @@ function isMACAddress(str) {
   return macAddress.test(str);
 }
 module.exports = exports['default'];
-},{"./util/assertString":66}],44:[function(require,module,exports){
+},{"./util/assertString":68}],46:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = isMD5;
+
+var _assertString = require('./util/assertString');
+
+var _assertString2 = _interopRequireDefault(_assertString);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var md5 = /^[a-f0-9]{32}$/;
+
+function isMD5(str) {
+  (0, _assertString2.default)(str);
+  return md5.test(str);
+}
+module.exports = exports['default'];
+},{"./util/assertString":68}],47:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2255,6 +2415,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var phones = {
   'ar-DZ': /^(\+?213|0)(5|6|7)\d{8}$/,
   'ar-SY': /^(!?(\+?963)|0)?9\d{8}$/,
+  'ar-SA': /^(!?(\+?966)|0)?5\d{8}$/,
   'en-US': /^(\+?1)?[2-9]\d{2}[2-9](?!11)\d{6}$/,
   'cs-CZ': /^(\+?420)? ?[1-9][0-9]{2} ?[0-9]{3} ?[0-9]{3}$/,
   'de-DE': /^(\+?49[ \.\-])?([\(]{1}[0-9]{1,6}[\)])?([0-9 \.\-\/]{3,20})((x|ext|extension)[ ]?[0-9]{1,4})?$/,
@@ -2270,14 +2431,19 @@ var phones = {
   'es-ES': /^(\+?34)?(6\d{1}|7[1234])\d{7}$/,
   'fi-FI': /^(\+?358|0)\s?(4(0|1|2|4|5)?|50)\s?(\d\s?){4,8}\d$/,
   'fr-FR': /^(\+?33|0)[67]\d{8}$/,
+  'he-IL': /^(\+972|0)([23489]|5[0248]|77)[1-9]\d{6}/,
   'hu-HU': /^(\+?36)(20|30|70)\d{7}$/,
+  'it-IT': /^(\+?39)?\s?3\d{2} ?\d{6,7}$/,
+  'ja-JP': /^(\+?81|0)\d{1,4}[ \-]?\d{1,4}[ \-]?\d{4}$/,
   'ms-MY': /^(\+?6?01){1}(([145]{1}(\-|\s)?\d{7,8})|([236789]{1}(\s|\-)?\d{7}))$/,
   'nb-NO': /^(\+?47)?[49]\d{7}$/,
+  'nl-BE': /^(\+?32|0)4?\d{8}$/,
   'nn-NO': /^(\+?47)?[49]\d{7}$/,
   'pl-PL': /^(\+?48)? ?[5-8]\d ?\d{3} ?\d{2} ?\d{2}$/,
   'pt-BR': /^(\+?55|0)\-?[1-9]{2}\-?[2-9]{1}\d{3,4}\-?\d{4}$/,
   'pt-PT': /^(\+?351)?9[1236]\d{7}$/,
   'ru-RU': /^(\+?7|8)?9\d{9}$/,
+  'sr-RS': /^(\+3816|06)[- \d]{5,9}$/,
   'tr-TR': /^(\+?90|0)?5\d{9}$/,
   'vi-VN': /^(\+?84|0)?((1(2([0-9])|6([2-9])|88|99))|(9((?!5)[0-9])))([0-9]{7})$/,
   'zh-CN': /^(\+?0?86\-?)?1[345789]\d{9}$/,
@@ -2287,6 +2453,7 @@ var phones = {
 
 // aliases
 phones['en-CA'] = phones['en-US'];
+phones['fr-BE'] = phones['nl-BE'];
 
 function isMobilePhone(str, locale) {
   (0, _assertString2.default)(str);
@@ -2296,7 +2463,7 @@ function isMobilePhone(str, locale) {
   return false;
 }
 module.exports = exports['default'];
-},{"./util/assertString":66}],45:[function(require,module,exports){
+},{"./util/assertString":68}],48:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2319,7 +2486,7 @@ function isMongoId(str) {
   return (0, _isHexadecimal2.default)(str) && str.length === 24;
 }
 module.exports = exports['default'];
-},{"./isHexadecimal":33,"./util/assertString":66}],46:[function(require,module,exports){
+},{"./isHexadecimal":34,"./util/assertString":68}],49:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2342,26 +2509,7 @@ function isMultibyte(str) {
   return multibyte.test(str);
 }
 module.exports = exports['default'];
-},{"./util/assertString":66}],47:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = isNull;
-
-var _assertString = require('./util/assertString');
-
-var _assertString2 = _interopRequireDefault(_assertString);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function isNull(str) {
-  (0, _assertString2.default)(str);
-  return str.length === 0;
-}
-module.exports = exports['default'];
-},{"./util/assertString":66}],48:[function(require,module,exports){
+},{"./util/assertString":68}],50:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2382,7 +2530,7 @@ function isNumeric(str) {
   return numeric.test(str);
 }
 module.exports = exports['default'];
-},{"./util/assertString":66}],49:[function(require,module,exports){
+},{"./util/assertString":68}],51:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2403,7 +2551,7 @@ function isSurrogatePair(str) {
   return surrogatePair.test(str);
 }
 module.exports = exports['default'];
-},{"./util/assertString":66}],50:[function(require,module,exports){
+},{"./util/assertString":68}],52:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2433,15 +2581,32 @@ var default_url_options = {
   protocols: ['http', 'https', 'ftp'],
   require_tld: true,
   require_protocol: false,
+  require_host: true,
   require_valid_protocol: true,
   allow_underscores: false,
   allow_trailing_dot: false,
   allow_protocol_relative_urls: false
 };
 
+var wrapped_ipv6 = /^\[([^\]]+)\](?::([0-9]+))?$/;
+
+function isRegExp(obj) {
+  return Object.prototype.toString.call(obj) === '[object RegExp]';
+}
+
+function checkHost(host, matches) {
+  for (var i = 0; i < matches.length; i++) {
+    var match = matches[i];
+    if (host === match || isRegExp(match) && match.test(host)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 function isURL(url, options) {
   (0, _assertString2.default)(url);
-  if (!url || url.length >= 2083 || /\s/.test(url)) {
+  if (!url || url.length >= 2083 || /[\s<>]/.test(url)) {
     return false;
   }
   if (url.indexOf('mailto:') === 0) {
@@ -2454,7 +2619,8 @@ function isURL(url, options) {
       hostname = void 0,
       port = void 0,
       port_str = void 0,
-      split = void 0;
+      split = void 0,
+      ipv6 = void 0;
 
   split = url.split('#');
   url = split.shift();
@@ -2477,6 +2643,11 @@ function isURL(url, options) {
 
   split = url.split('/');
   url = split.shift();
+
+  if (url === '' && !options.require_host) {
+    return true;
+  }
+
   split = url.split('@');
   if (split.length > 1) {
     auth = split.shift();
@@ -2485,28 +2656,45 @@ function isURL(url, options) {
     }
   }
   hostname = split.join('@');
-  split = hostname.split(':');
-  host = split.shift();
-  if (split.length) {
-    port_str = split.join(':');
+
+  port_str = ipv6 = null;
+  var ipv6_match = hostname.match(wrapped_ipv6);
+  if (ipv6_match) {
+    host = '';
+    ipv6 = ipv6_match[1];
+    port_str = ipv6_match[2] || null;
+  } else {
+    split = hostname.split(':');
+    host = split.shift();
+    if (split.length) {
+      port_str = split.join(':');
+    }
+  }
+
+  if (port_str !== null) {
     port = parseInt(port_str, 10);
     if (!/^[0-9]+$/.test(port_str) || port <= 0 || port > 65535) {
       return false;
     }
   }
-  if (!(0, _isIP2.default)(host) && !(0, _isFQDN2.default)(host, options) && host !== 'localhost') {
+
+  if (!(0, _isIP2.default)(host) && !(0, _isFQDN2.default)(host, options) && (!ipv6 || !(0, _isIP2.default)(ipv6, 6)) && host !== 'localhost') {
     return false;
   }
-  if (options.host_whitelist && options.host_whitelist.indexOf(host) === -1) {
+
+  host = host || ipv6;
+
+  if (options.host_whitelist && !checkHost(host, options.host_whitelist)) {
     return false;
   }
-  if (options.host_blacklist && options.host_blacklist.indexOf(host) !== -1) {
+  if (options.host_blacklist && checkHost(host, options.host_blacklist)) {
     return false;
   }
+
   return true;
 }
 module.exports = exports['default'];
-},{"./isFQDN":28,"./isIP":34,"./util/assertString":66,"./util/merge":67}],51:[function(require,module,exports){
+},{"./isFQDN":29,"./isIP":35,"./util/assertString":68,"./util/merge":69}],53:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2528,14 +2716,14 @@ var uuid = {
 };
 
 function isUUID(str) {
-  var version = arguments.length <= 1 || arguments[1] === undefined ? 'all' : arguments[1];
+  var version = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'all';
 
   (0, _assertString2.default)(str);
   var pattern = uuid[version];
   return pattern && pattern.test(str);
 }
 module.exports = exports['default'];
-},{"./util/assertString":66}],52:[function(require,module,exports){
+},{"./util/assertString":68}],54:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2554,7 +2742,7 @@ function isUppercase(str) {
   return str === str.toUpperCase();
 }
 module.exports = exports['default'];
-},{"./util/assertString":66}],53:[function(require,module,exports){
+},{"./util/assertString":68}],55:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2577,7 +2765,7 @@ function isVariableWidth(str) {
   return _isFullWidth.fullWidth.test(str) && _isHalfWidth.halfWidth.test(str);
 }
 module.exports = exports['default'];
-},{"./isFullWidth":30,"./isHalfWidth":31,"./util/assertString":66}],54:[function(require,module,exports){
+},{"./isFullWidth":31,"./isHalfWidth":32,"./util/assertString":68}],56:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2601,7 +2789,7 @@ function isWhitelisted(str, chars) {
   return true;
 }
 module.exports = exports['default'];
-},{"./util/assertString":66}],55:[function(require,module,exports){
+},{"./util/assertString":68}],57:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2621,7 +2809,7 @@ function ltrim(str, chars) {
   return str.replace(pattern, '');
 }
 module.exports = exports['default'];
-},{"./util/assertString":66}],56:[function(require,module,exports){
+},{"./util/assertString":68}],58:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2643,7 +2831,7 @@ function matches(str, pattern, modifiers) {
   return pattern.test(str);
 }
 module.exports = exports['default'];
-},{"./util/assertString":66}],57:[function(require,module,exports){
+},{"./util/assertString":68}],59:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2662,37 +2850,126 @@ var _merge2 = _interopRequireDefault(_merge);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var default_normalize_email_options = {
-  lowercase: true,
-  remove_dots: true,
-  remove_extension: true
+  // The following options apply to all email addresses
+  // Lowercases the local part of the email address.
+  // Please note this may violate RFC 5321 as per http://stackoverflow.com/a/9808332/192024).
+  // The domain is always lowercased, as per RFC 1035
+  all_lowercase: true,
+
+  // The following conversions are specific to GMail
+  // Lowercases the local part of the GMail address (known to be case-insensitive)
+  gmail_lowercase: true,
+  // Removes dots from the local part of the email address, as that's ignored by GMail
+  gmail_remove_dots: true,
+  // Removes the subaddress (e.g. "+foo") from the email address
+  gmail_remove_subaddress: true,
+  // Conversts the googlemail.com domain to gmail.com
+  gmail_convert_googlemaildotcom: true,
+
+  // The following conversions are specific to Outlook.com / Windows Live / Hotmail
+  // Lowercases the local part of the Outlook.com address (known to be case-insensitive)
+  outlookdotcom_lowercase: true,
+  // Removes the subaddress (e.g. "+foo") from the email address
+  outlookdotcom_remove_subaddress: true,
+
+  // The following conversions are specific to Yahoo
+  // Lowercases the local part of the Yahoo address (known to be case-insensitive)
+  yahoo_lowercase: true,
+  // Removes the subaddress (e.g. "-foo") from the email address
+  yahoo_remove_subaddress: true,
+
+  // The following conversions are specific to iCloud
+  // Lowercases the local part of the iCloud address (known to be case-insensitive)
+  icloud_lowercase: true,
+  // Removes the subaddress (e.g. "+foo") from the email address
+  icloud_remove_subaddress: true
 };
+
+// List of domains used by iCloud
+var icloud_domains = ['icloud.com', 'me.com'];
+
+// List of domains used by Outlook.com and its predecessors
+// This list is likely incomplete.
+// Partial reference:
+// https://blogs.office.com/2013/04/17/outlook-com-gets-two-step-verification-sign-in-by-alias-and-new-international-domains/
+var outlookdotcom_domains = ['hotmail.at', 'hotmail.be', 'hotmail.ca', 'hotmail.cl', 'hotmail.co.il', 'hotmail.co.nz', 'hotmail.co.th', 'hotmail.co.uk', 'hotmail.com', 'hotmail.com.ar', 'hotmail.com.au', 'hotmail.com.br', 'hotmail.com.gr', 'hotmail.com.mx', 'hotmail.com.pe', 'hotmail.com.tr', 'hotmail.com.vn', 'hotmail.cz', 'hotmail.de', 'hotmail.dk', 'hotmail.es', 'hotmail.fr', 'hotmail.hu', 'hotmail.id', 'hotmail.ie', 'hotmail.in', 'hotmail.it', 'hotmail.jp', 'hotmail.kr', 'hotmail.lv', 'hotmail.my', 'hotmail.ph', 'hotmail.pt', 'hotmail.sa', 'hotmail.sg', 'hotmail.sk', 'live.be', 'live.co.uk', 'live.com', 'live.com.ar', 'live.com.mx', 'live.de', 'live.es', 'live.eu', 'live.fr', 'live.it', 'live.nl', 'msn.com', 'outlook.at', 'outlook.be', 'outlook.cl', 'outlook.co.il', 'outlook.co.nz', 'outlook.co.th', 'outlook.com', 'outlook.com.ar', 'outlook.com.au', 'outlook.com.br', 'outlook.com.gr', 'outlook.com.pe', 'outlook.com.tr', 'outlook.com.vn', 'outlook.cz', 'outlook.de', 'outlook.dk', 'outlook.es', 'outlook.fr', 'outlook.hu', 'outlook.id', 'outlook.ie', 'outlook.in', 'outlook.it', 'outlook.jp', 'outlook.kr', 'outlook.lv', 'outlook.my', 'outlook.ph', 'outlook.pt', 'outlook.sa', 'outlook.sg', 'outlook.sk', 'passport.com'];
+
+// List of domains used by Yahoo Mail
+// This list is likely incomplete
+var yahoo_domains = ['rocketmail.com', 'yahoo.ca', 'yahoo.co.uk', 'yahoo.com', 'yahoo.de', 'yahoo.fr', 'yahoo.in', 'yahoo.it', 'ymail.com'];
 
 function normalizeEmail(email, options) {
   options = (0, _merge2.default)(options, default_normalize_email_options);
+
   if (!(0, _isEmail2.default)(email)) {
     return false;
   }
-  var parts = email.split('@', 2);
+
+  var raw_parts = email.split('@');
+  var domain = raw_parts.pop();
+  var user = raw_parts.join('@');
+  var parts = [user, domain];
+
+  // The domain is always lowercased, as it's case-insensitive per RFC 1035
   parts[1] = parts[1].toLowerCase();
+
   if (parts[1] === 'gmail.com' || parts[1] === 'googlemail.com') {
-    if (options.remove_extension) {
+    // Address is GMail
+    if (options.gmail_remove_subaddress) {
       parts[0] = parts[0].split('+')[0];
     }
-    if (options.remove_dots) {
+    if (options.gmail_remove_dots) {
       parts[0] = parts[0].replace(/\./g, '');
     }
     if (!parts[0].length) {
       return false;
     }
-    parts[0] = parts[0].toLowerCase();
-    parts[1] = 'gmail.com';
-  } else if (options.lowercase) {
+    if (options.all_lowercase || options.gmail_lowercase) {
+      parts[0] = parts[0].toLowerCase();
+    }
+    parts[1] = options.gmail_convert_googlemaildotcom ? 'gmail.com' : parts[1];
+  } else if (~icloud_domains.indexOf(parts[1])) {
+    // Address is iCloud
+    if (options.icloud_remove_subaddress) {
+      parts[0] = parts[0].split('+')[0];
+    }
+    if (!parts[0].length) {
+      return false;
+    }
+    if (options.all_lowercase || options.icloud_lowercase) {
+      parts[0] = parts[0].toLowerCase();
+    }
+  } else if (~outlookdotcom_domains.indexOf(parts[1])) {
+    // Address is Outlook.com
+    if (options.outlookdotcom_remove_subaddress) {
+      parts[0] = parts[0].split('+')[0];
+    }
+    if (!parts[0].length) {
+      return false;
+    }
+    if (options.all_lowercase || options.outlookdotcom_lowercase) {
+      parts[0] = parts[0].toLowerCase();
+    }
+  } else if (~yahoo_domains.indexOf(parts[1])) {
+    // Address is Yahoo
+    if (options.yahoo_remove_subaddress) {
+      var components = parts[0].split('-');
+      parts[0] = components.length > 1 ? components.slice(0, -1).join('-') : components[0];
+    }
+    if (!parts[0].length) {
+      return false;
+    }
+    if (options.all_lowercase || options.yahoo_lowercase) {
+      parts[0] = parts[0].toLowerCase();
+    }
+  } else if (options.all_lowercase) {
+    // Any other address
     parts[0] = parts[0].toLowerCase();
   }
   return parts.join('@');
 }
 module.exports = exports['default'];
-},{"./isEmail":27,"./util/merge":67}],58:[function(require,module,exports){
+},{"./isEmail":27,"./util/merge":69}],60:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2718,7 +2995,7 @@ function rtrim(str, chars) {
   return idx < str.length ? str.substr(0, idx + 1) : str;
 }
 module.exports = exports['default'];
-},{"./util/assertString":66}],59:[function(require,module,exports){
+},{"./util/assertString":68}],61:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2742,7 +3019,7 @@ function stripLow(str, keep_new_lines) {
   return (0, _blacklist2.default)(str, chars);
 }
 module.exports = exports['default'];
-},{"./blacklist":9,"./util/assertString":66}],60:[function(require,module,exports){
+},{"./blacklist":9,"./util/assertString":68}],62:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2764,7 +3041,7 @@ function toBoolean(str, strict) {
   return str !== '0' && str !== 'false' && str !== '';
 }
 module.exports = exports['default'];
-},{"./util/assertString":66}],61:[function(require,module,exports){
+},{"./util/assertString":68}],63:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2784,7 +3061,7 @@ function toDate(date) {
   return !isNaN(date) ? new Date(date) : null;
 }
 module.exports = exports['default'];
-},{"./util/assertString":66}],62:[function(require,module,exports){
+},{"./util/assertString":68}],64:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2803,7 +3080,7 @@ function toFloat(str) {
   return parseFloat(str);
 }
 module.exports = exports['default'];
-},{"./util/assertString":66}],63:[function(require,module,exports){
+},{"./util/assertString":68}],65:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2822,7 +3099,7 @@ function toInt(str, radix) {
   return parseInt(str, radix || 10);
 }
 module.exports = exports['default'];
-},{"./util/assertString":66}],64:[function(require,module,exports){
+},{"./util/assertString":68}],66:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2844,7 +3121,7 @@ function trim(str, chars) {
   return (0, _rtrim2.default)((0, _ltrim2.default)(str, chars), chars);
 }
 module.exports = exports['default'];
-},{"./ltrim":55,"./rtrim":58}],65:[function(require,module,exports){
+},{"./ltrim":57,"./rtrim":60}],67:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2863,7 +3140,7 @@ function unescape(str) {
       return str.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#x27;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&#x2F;/g, '/').replace(/&#96;/g, '`');
 }
 module.exports = exports['default'];
-},{"./util/assertString":66}],66:[function(require,module,exports){
+},{"./util/assertString":68}],68:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2876,7 +3153,7 @@ function assertString(input) {
   }
 }
 module.exports = exports['default'];
-},{}],67:[function(require,module,exports){
+},{}],69:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2884,7 +3161,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = merge;
 function merge() {
-  var obj = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+  var obj = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
   var defaults = arguments[1];
 
   for (var key in defaults) {
@@ -2895,14 +3172,14 @@ function merge() {
   return obj;
 }
 module.exports = exports['default'];
-},{}],68:[function(require,module,exports){
+},{}],70:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 exports.default = toString;
 function toString(input) {
@@ -2918,7 +3195,7 @@ function toString(input) {
   return String(input);
 }
 module.exports = exports['default'];
-},{}],69:[function(require,module,exports){
+},{}],71:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2937,5 +3214,5 @@ function whitelist(str, chars) {
   return str.replace(new RegExp('[^' + chars + ']+', 'g'), '');
 }
 module.exports = exports['default'];
-},{"./util/assertString":66}]},{},[3])(3)
+},{"./util/assertString":68}]},{},[3])(3)
 });
