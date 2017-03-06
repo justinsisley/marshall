@@ -4,7 +4,7 @@ const marshall = require('../lib');
 const config = marshall({
   env: {
     doc: 'The application environment',
-    format: ['production', 'development'],
+    format: ['production', 'development', 'test'],
     default: 'development',
     env: 'NODE_ENV',
     arg: 'node-env',
@@ -29,6 +29,13 @@ const config = marshall({
     default: 'https://api.company.com',
     env: 'API',
     arg: 'api',
+  },
+  debug: {
+    doc: 'Run the application in debug mode',
+    format: Boolean,
+    default: false,
+    env: 'DEBUG',
+    arg: 'debug',
   },
   nested: {
     example: {

@@ -1,10 +1,10 @@
 {
   "name": "marshall",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Shared JavaScript configuration for Node.js and web apps",
   "main": "index.js",
   "scripts": {
-    "example": "node ./example/app.js --node-env=production",
+    "example": "DEBUG=true node ./example/app.js --node-env=test",
     "build": "browserify -s marshall --bare ./lib/index.js > ./index.js"
   },
   "repository": {

@@ -4,7 +4,7 @@
 
 > Shared JavaScript configuration for Node.js and web apps
 
-Marshall is very heavily inspired by [convict](https://www.npmjs.com/package/convict). If you only need configuration management for a Node.js app, convict is the way to go.
+Marshall is heavily inspired by [convict](https://www.npmjs.com/package/convict). If you only need configuration management for a Node.js app, convict is the way to go.
 
 ## Features
 
@@ -84,6 +84,26 @@ $.get(config.get('api') + '/users')
 .done(function(allUsers) {
   console.log(allUsers);
 });
+```
+
+## Command Line Overrides
+
+Use environment variables or command line arguments to override default settings.
+
+```bash
+API=https://api.mycompany.com node my-app.js
+```
+
+or
+
+```bash
+node my-app.js -- api=https://api.mycompany.com
+```
+
+or both
+
+```bash
+DEBUG=true node my-app.js --node-env=test
 ```
 
 ## Validation
